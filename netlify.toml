@@ -1,0 +1,9 @@
+﻿[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Keep client-side routes working if routes are added later.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
