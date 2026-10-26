@@ -1,13 +1,19 @@
-﻿import { isSupabaseConfigured } from './lib/supabase.js'
-import './style.css'
+﻿import './style.css'
 
-const title = document.querySelector('#connection-title')
-const message = document.querySelector('#connection-message')
+const menuButton = document.querySelector('.menu-toggle')
+const siteNav = document.querySelector('#site-nav')
 
-if (isSupabaseConfigured) {
-  title.textContent = 'Supabase is configured'
-  message.textContent = 'The client is ready. Add your database tables and access policies when the app’s data needs are defined.'
-} else {
-  title.textContent = 'Supabase setup needed'
-  message.textContent = 'Copy .env.example to .env and add your project URL and publishable key.'
-}
+menuButton?.addEventListener('click', () => {
+  const isExpanded = menuButton.getAttribute('aria-expanded') === 'true'
+  menuButton.setAttribute('aria-expanded', String(!isExpanded))
+  menuButton.setAttribute('aria-label', isExpanded ? 'Ouvrir le menu' : 'Fermer le menu')
+  siteNav?.classList.toggle('is-open', !isExpanded)
+})
+
+siteNav?.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    menuButton?.setAttribute('aria-expanded', 'false')
+    menuButton?.setAttribute('aria-label', 'Ouvrir le menu')
+    siteNav.classList.remove('is-open')
+  })
+})
