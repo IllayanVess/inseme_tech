@@ -345,3 +345,43 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
   .home-lede { max-width: 440px; margin-top: 25px; font-size: 18px; }
   .home-actions { flex-direction: column; gap: 12px; margin-top: 29px; }
 }
+
+/* Keep every visible About page label and paragraph comfortably readable. */
+.about-page-layout .site-nav { font-size: 14px; }
+.about-page-layout .nav-link, .about-page-layout .nav-cta { font-size: 14px; }
+.about-page-layout .language-switch { font-size: 14px; }
+.about-page-layout .eyebrow { font-size: 14px; letter-spacing: .06em; }
+.about-page-layout .section-aside { font-size: 16px; line-height: 1.65; }
+.about-page-layout .about-hero-bottom { gap: 22px; font-size: 14px; letter-spacing: .02em; }
+.about-page-layout .about-hero-bottom a { font-size: 14px; }
+.about-page-layout .section-index { font-size: 14px; letter-spacing: .02em; }
+.about-page-layout .section-index span:first-child { font-size: 16px; }
+.about-page-layout .ambition-copy p,
+.about-page-layout .perspectives-main > p:not(.eyebrow),
+.about-page-layout .continuity-lede { font-size: 16px; line-height: 1.75; }
+.about-page-layout .ambition-stamp { width: 132px; height: 132px; font-size: 14px; letter-spacing: .02em; }
+.about-page-layout .about-axis-no { font-size: 14px; }
+.about-page-layout .about-axis p { font-size: 16px; line-height: 1.7; }
+.about-page-layout .principle-card > span,
+.about-page-layout .principle-grid article > span { font-size: 14px; letter-spacing: .02em; }
+.about-page-layout .principle-card p,
+.about-page-layout .principle-grid p { font-size: 16px; line-height: 1.7; }
+.about-page-layout .value-copy > p:last-child,
+.about-page-layout .value-list li,
+.about-page-layout .continuity-note { font-size: 16px; line-height: 1.7; }
+.about-page-layout .value-list li span,
+.about-page-layout .signals strong,
+.about-page-layout .signals span { font-size: 14px; line-height: 1.55; }
+.about-page-layout .project-status-note { font-size: 16px; line-height: 1.7; }
+.about-page-layout .site-footer { font-size: 14px; }
+.about-page-layout .footer-brand { font-size: 15px; }
+.about-page-layout .button { font-size: 14px; }
+
+@media (max-width: 600px) {
+  .about-page-layout .about-hero-bottom { gap: 10px; flex-wrap: wrap; font-size: 14px; }
+  .about-page-layout .about-hero-bottom a { font-size: 14px; }
+  .about-page-layout .section-index { font-size: 14px; }
+  .about-page-layout .principle-grid article > span,
+  .about-page-layout .principle-card > span { font-size: 14px; }
+  .about-page-layout .site-footer { font-size: 14px; }
+}
