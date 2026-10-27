@@ -25,6 +25,10 @@ const pageCopy = {
     emailExists: 'Cette adresse e-mail possède déjà un compte. Essayez de vous connecter.',
     invalidEmail: 'Saisissez une adresse e-mail valide.',
     weakPassword: 'Choisissez un mot de passe plus sûr, avec au moins 8 caractères.',
+    emailNotAuthorized: 'Supabase bloque cet e-mail avec son service d’envoi par défaut. Configurez un serveur SMTP dans Supabase avant d’inscrire d’autres utilisateurs.',
+    emailRateLimited: 'La limite d’e-mails de confirmation est atteinte. Réessayez plus tard ou configurez un serveur SMTP dans Supabase.',
+    redirectNotAllowed: 'Supabase bloque le lien de confirmation. Ajoutez l’adresse de cette page dans Authentification → Configuration des URL → URL de redirection.',
+    signupDisabled: 'Les inscriptions par e-mail sont désactivées dans Supabase Auth.',
     roleUpdateError: 'Impossible de modifier ce rôle. Vérifiez vos droits et réessayez.',
     noUsers: 'Aucun autre compte à afficher.',
     save: 'Enregistrer',
@@ -49,6 +53,10 @@ const pageCopy = {
     emailExists: 'An account already uses this email address. Try signing in.',
     invalidEmail: 'Enter a valid email address.',
     weakPassword: 'Choose a stronger password with at least 8 characters.',
+    emailNotAuthorized: 'Supabase is blocking this address with its default email sender. Configure a custom SMTP server in Supabase before signing up other users.',
+    emailRateLimited: 'The confirmation email limit has been reached. Try again later or configure a custom SMTP server in Supabase.',
+    redirectNotAllowed: 'Supabase is blocking the confirmation link. Add this page URL under Authentication → URL Configuration → Redirect URLs.',
+    signupDisabled: 'Email sign-ups are disabled in Supabase Auth.',
     roleUpdateError: 'Could not change this role. Check your access and try again.',
     noUsers: 'There are no more accounts to show.',
     save: 'Save',
@@ -280,5 +288,9 @@ function messageForAuthError(error, copy) {
   if (['email_exists', 'user_already_exists'].includes(error.code)) return copy.emailExists
   if (['invalid_email', 'email_address_invalid'].includes(error.code)) return copy.invalidEmail
   if (['weak_password', 'password_too_short'].includes(error.code)) return copy.weakPassword
+  if (error.code === 'email_address_not_authorized') return copy.emailNotAuthorized
+  if (error.code === 'over_email_send_rate_limit') return copy.emailRateLimited
+  if (['redirect_to_not_allowed', 'validation_failed'].includes(error.code) && /redirect/i.test(error.message)) return copy.redirectNotAllowed
+  if (['signup_disabled', 'email_provider_disabled'].includes(error.code)) return copy.signupDisabled
   return copy.genericError
 }
