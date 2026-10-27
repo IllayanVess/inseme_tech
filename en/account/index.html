@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Create a PSTB Tech account or sign in to access your member space." />
+    <title>My account — PSTB Tech</title>
+  </head>
+  <body class="account-page">
+    <header class="site-header">
+      <a class="wordmark" href="/en/" aria-label="PSTB Tech, home"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a class="nav-link" href="/en/">Home</a><a class="nav-link" href="/en/about/">About us</a><a class="nav-cta" href="/en/activities/">What we do <span aria-hidden="true">↗</span></a><a class="nav-link active" href="/en/account/" aria-current="page">My account</a>
+        <div class="language-switch" aria-label="Choose language"><a href="/compte/" lang="fr">FR</a><span aria-hidden="true">/</span><a class="selected" href="/en/account/" lang="en" aria-current="page">EN</a></div>
+      </nav>
+    </header>
+    <main class="account-main" data-account-page>
+      <section class="account-shell wrap">
+        <p class="eyebrow">MEMBER SPACE</p>
+        <h1>Your PSTB Tech<br /><em>account.</em></h1>
+        <p class="account-intro">Create a student account or sign in to access your member space.</p>
+        <p class="account-privacy">Your email address is used to manage your account and access. Administrators can see it. Accounts remain stored while active; contact the PSTB Tech team to request deletion.</p>
+        <p class="account-status" data-account-status role="status" aria-live="polite">Loading…</p>
+        <div class="account-forms" data-account-forms hidden>
+          <form class="account-card" data-signin-form>
+            <h2>Sign in</h2>
+            <label for="signin-email">Email address</label>
+            <input id="signin-email" name="email" type="email" autocomplete="email" required />
+            <label for="signin-password">Password</label>
+            <input id="signin-password" name="password" type="password" autocomplete="current-password" required />
+            <button class="button button-dark account-submit" type="submit">Sign in</button>
+          </form>
+          <form class="account-card" data-signup-form>
+            <h2>Create an account</h2>
+            <label for="signup-email">Email address</label>
+            <input id="signup-email" name="email" type="email" autocomplete="email" required />
+            <label for="signup-password">Password</label>
+            <input id="signup-password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+            <p class="account-hint">At least 8 characters.</p>
+            <button class="button button-dark account-submit" type="submit">Create my account</button>
+          </form>
+        </div>
+        <section class="account-card account-profile" data-account-profile hidden aria-labelledby="profile-title">
+          <h2 id="profile-title">My space</h2>
+          <p data-account-email></p>
+          <p class="account-role" data-account-role></p>
+          <button class="button button-dark account-submit" data-signout type="button">Sign out</button>
+        </section>
+        <section class="account-card account-admin" data-admin-panel hidden aria-labelledby="admin-title">
+          <h2 id="admin-title">Role administration</h2>
+          <p>Grant or remove administrator access for PSTB Tech accounts.</p>
+          <button class="button button-dark account-submit" data-bootstrap-admin type="button" hidden>Activate my first administrator account</button>
+          <p data-bootstrap-help hidden>Initial setup must be enabled on the Supabase server.</p>
+          <div class="account-user-list" data-user-list></div>
+          <button class="account-load-more" data-load-more type="button" hidden>Load more accounts</button>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

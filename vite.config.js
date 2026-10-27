@@ -8,6 +8,8 @@ export default {
         aboutEnglish: 'en/about/index.html',
         activities: 'activites/index.html',
         activitiesEnglish: 'en/activities/index.html',
+        account: 'compte/index.html',
+        accountEnglish: 'en/account/index.html',
       },
     },
   },

@@ -30,6 +30,16 @@ Only link or push migrations after verifying that the CLI project reference matc
 - `src/style.css` contains shared site styles.
 - `netlify/functions/` is the location for future server-side functions that need secrets, privileged writes, or request validation.
 
+## Member accounts and roles
+
+- French and English account pages are available at `/compte/` and `/en/account/`.
+- Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in local development and Netlify. Browser code must never receive a Supabase secret or service-role key.
+- Enable email sign-ups in Supabase Auth and configure the production email sender. Add the deployed `/compte/` and `/en/account/` URLs to the Auth redirect allow list so confirmation links return to the account page.
+- Deploy `supabase/functions/manage-users/` to the same verified Supabase project as the site. Keep JWT verification enabled.
+- Before initial setup, add `INITIAL_ADMIN_EMAIL` as an Edge Function secret in the Supabase Dashboard. Set it to the email that will own the first administrator account; do not commit it. The account must sign up and confirm its email first. That matching account can then use the one-time setup button. Setup is refused if any administrator already exists.
+- New accounts are ordinary members. Administrators can assign `member` or `admin` roles from the account page. Role changes are written only to trusted `app_metadata` by the Edge Function; member listings and role updates are not available to regular users.
+- The function uses the Supabase Edge Function `SUPABASE_SERVICE_ROLE_KEY` only on the server. Never add it to Vite or a `VITE_` environment variable.
+
 ## Licensing
 
 Licensing in this repository is separated by content type:

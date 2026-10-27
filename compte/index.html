@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Créez votre compte PSTB Tech ou connectez-vous pour accéder à votre espace membre." />
+    <title>Mon compte — PSTB Tech</title>
+  </head>
+  <body class="account-page">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="PSTB Tech, accueil"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
+        <a class="nav-link" href="/">Accueil</a><a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a><a class="nav-cta" href="/activites/">Nos activités <span aria-hidden="true">↗</span></a><a class="nav-link active" href="/compte/" aria-current="page">Mon compte</a>
+        <div class="language-switch" aria-label="Choisir la langue"><a class="selected" href="/compte/" lang="fr" aria-current="page">FR</a><span aria-hidden="true">/</span><a href="/en/account/" lang="en">EN</a></div>
+      </nav>
+    </header>
+    <main class="account-main" data-account-page>
+      <section class="account-shell wrap">
+        <p class="eyebrow">ESPACE MEMBRE</p>
+        <h1>Votre compte<br /><em>PSTB Tech.</em></h1>
+        <p class="account-intro">Créez un compte étudiant ou connectez-vous pour retrouver votre espace membre.</p>
+        <p class="account-privacy">Votre adresse e-mail sert à gérer votre compte et ses accès. Elle est visible par les administrateurs. Les comptes restent enregistrés tant qu’ils sont actifs ; contactez l’équipe PSTB Tech pour demander leur suppression.</p>
+        <p class="account-status" data-account-status role="status" aria-live="polite">Chargement…</p>
+        <div class="account-forms" data-account-forms hidden>
+          <form class="account-card" data-signin-form>
+            <h2>Se connecter</h2>
+            <label for="signin-email">Adresse e-mail</label>
+            <input id="signin-email" name="email" type="email" autocomplete="email" required />
+            <label for="signin-password">Mot de passe</label>
+            <input id="signin-password" name="password" type="password" autocomplete="current-password" required />
+            <button class="button button-dark account-submit" type="submit">Se connecter</button>
+          </form>
+          <form class="account-card" data-signup-form>
+            <h2>Créer un compte</h2>
+            <label for="signup-email">Adresse e-mail</label>
+            <input id="signup-email" name="email" type="email" autocomplete="email" required />
+            <label for="signup-password">Mot de passe</label>
+            <input id="signup-password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+            <p class="account-hint">8 caractères minimum.</p>
+            <button class="button button-dark account-submit" type="submit">Créer mon compte</button>
+          </form>
+        </div>
+        <section class="account-card account-profile" data-account-profile hidden aria-labelledby="profile-title">
+          <h2 id="profile-title">Mon espace</h2>
+          <p data-account-email></p>
+          <p class="account-role" data-account-role></p>
+          <button class="button button-dark account-submit" data-signout type="button">Se déconnecter</button>
+        </section>
+        <section class="account-card account-admin" data-admin-panel hidden aria-labelledby="admin-title">
+          <h2 id="admin-title">Administration des rôles</h2>
+          <p>Attribuez ou retirez le rôle administrateur des comptes PSTB Tech.</p>
+          <button class="button button-dark account-submit" data-bootstrap-admin type="button" hidden>Activer mon premier compte administrateur</button>
+          <p data-bootstrap-help hidden>La configuration initiale doit être activée sur le serveur Supabase.</p>
+          <div class="account-user-list" data-user-list></div>
+          <button class="account-load-more" data-load-more type="button" hidden>Charger plus de comptes</button>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
