@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080910" />
+    <meta name="description" content="Découvrez les projets, ateliers, événements et rencontres de PSTB Tech, l’association étudiante de technologie et d’innovation de PSTB." />
+    <title>Projets, ateliers et événements — PSTB Tech</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="PSTB Tech, accueil"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
+        <a class="nav-link" href="/">Accueil</a>
+        <a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a>
+        <a class="nav-cta" href="/activites/" aria-current="page">Nos activités <span aria-hidden="true">↗</span></a>
+        <div class="language-switch" aria-label="Choisir la langue"><a class="selected" href="/activites/" lang="fr" aria-current="page">FR</a><span aria-hidden="true">/</span><a href="/en/activities/" lang="en">EN</a></div>
+      </nav>
+    </header>
+
+    <main class="activities-page" data-activities-page>
+      <section class="activities-hero wrap">
+        <p class="eyebrow">ATELIERS · RENCONTRES · ÉVÉNEMENTS</p>
+        <h1>Découvrir.<br /><em>Pratiquer ensemble.</em></h1>
+        <p class="activities-lede">Découvrez les projets et ateliers pratiques, les événements étudiants et les rencontres professionnelles proposés par PSTB Tech. Les informations sont publiées lorsqu’elles sont confirmées.</p>
+        <div class="activity-period" role="group" aria-label="Période des activités">
+          <button type="button" data-activities-period="upcoming" aria-pressed="true">À venir</button>
+          <button type="button" data-activities-period="past" aria-pressed="false">Passées</button>
+        </div>
+      </section>
+
+      <section class="activity-browser wrap" aria-labelledby="activity-browser-title">
+        <div class="activity-browser-heading">
+          <div><p class="eyebrow">AGENDA PUBLIC</p><h2 id="activity-browser-title">Activités <em>publiées</em></h2></div>
+          <p>Filtrez par thème, statut ou période.</p>
+        </div>
+        <form class="activity-filters" data-activities-filter>
+          <label>Thème
+            <select name="category">
+              <option value="all">Tous les thèmes</option>
+              <option value="programming">Programmation</option>
+              <option value="data_ai">Data et IA</option>
+              <option value="robotics">Robotique</option>
+              <option value="creative_technology">Technologies créatives</option>
+              <option value="professional_development">Ouverture professionnelle</option>
+              <option value="community">Vie étudiante</option>
+            </select>
+          </label>
+          <label>Statut
+            <select name="status">
+              <option value="all">Tous les statuts</option>
+              <option value="planned">Prévu</option>
+              <option value="open">Inscriptions ouvertes</option>
+              <option value="full">Complet</option>
+              <option value="cancelled">Annulé</option>
+              <option value="completed">Terminé</option>
+            </select>
+          </label>
+          <label>Du
+            <input type="date" name="dateFrom" />
+          </label>
+          <label>Au
+            <input type="date" name="dateTo" />
+          </label>
+          <div class="activity-filter-actions">
+            <button class="button button-dark" type="submit">Filtrer</button>
+            <button class="filter-reset" type="reset">Réinitialiser</button>
+          </div>
+          <p class="filter-error" data-date-error role="alert"></p>
+        </form>
+
+        <div class="activity-results">
+          <p class="activity-results-status" data-activities-status role="status" aria-live="polite">Chargement des activités…</p>
+          <div class="activity-list" data-activities-results aria-live="polite"></div>
+          <button class="button button-outline activity-load-more" type="button" data-activities-more hidden>Afficher plus</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer wrap"><a class="footer-brand" href="/">PSTB<span> Tech</span></a><span>Association étudiante · PSTB</span><a href="/a-propos/">Qui sommes-nous ? <span aria-hidden="true">↗</span></a><span>© PSTB Tech</span></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

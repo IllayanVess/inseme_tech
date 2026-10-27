@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080910" />
+    <meta name="description" content="Explore projects, workshops, events and professional talks from PSTB Tech, PSTB’s student association for technology and innovation." />
+    <title>Projects, workshops and events — PSTB Tech</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/en/" aria-label="PSTB Tech, home"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a class="nav-link" href="/en/">Home</a>
+        <a class="nav-link" href="/en/about/">About us</a>
+        <a class="nav-cta" href="/en/activities/" aria-current="page">Activities <span aria-hidden="true">↗</span></a>
+        <div class="language-switch" aria-label="Choose language"><a href="/activites/" lang="fr">FR</a><span aria-hidden="true">/</span><a class="selected" href="/en/activities/" lang="en" aria-current="page">EN</a></div>
+      </nav>
+    </header>
+
+    <main class="activities-page" data-activities-page>
+      <section class="activities-hero wrap">
+        <p class="eyebrow">WORKSHOPS · MEETUPS · EVENTS</p>
+        <h1>Explore.<br /><em>Learn together.</em></h1>
+        <p class="activities-lede">Explore hands-on projects and workshops, student events and professional talks from PSTB Tech. Information is published once confirmed.</p>
+        <div class="activity-period" role="group" aria-label="Activity date range">
+          <button type="button" data-activities-period="upcoming" aria-pressed="true">Upcoming</button>
+          <button type="button" data-activities-period="past" aria-pressed="false">Past</button>
+        </div>
+      </section>
+
+      <section class="activity-browser wrap" aria-labelledby="activity-browser-title">
+        <div class="activity-browser-heading">
+          <div><p class="eyebrow">PUBLIC CALENDAR</p><h2>Published <em>activities</em></h2></div>
+          <p>Filter by topic, status or date range.</p>
+        </div>
+        <form class="activity-filters" data-activities-filter>
+          <label>Topic
+            <select name="category">
+              <option value="all">All topics</option>
+              <option value="programming">Programming</option>
+              <option value="data_ai">Data and AI</option>
+              <option value="robotics">Robotics</option>
+              <option value="creative_technology">Creative technology</option>
+              <option value="professional_development">Professional development</option>
+              <option value="community">Community</option>
+            </select>
+          </label>
+          <label>Status
+            <select name="status">
+              <option value="all">All statuses</option>
+              <option value="planned">Planned</option>
+              <option value="open">Registration open</option>
+              <option value="full">Full</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="completed">Completed</option>
+            </select>
+          </label>
+          <label>From
+            <input type="date" name="dateFrom" />
+          </label>
+          <label>To
+            <input type="date" name="dateTo" />
+          </label>
+          <div class="activity-filter-actions">
+            <button class="button button-dark" type="submit">Filter</button>
+            <button class="filter-reset" type="reset">Reset</button>
+          </div>
+          <p class="filter-error" data-date-error role="alert"></p>
+        </form>
+
+        <div class="activity-results">
+          <p class="activity-results-status" data-activities-status role="status" aria-live="polite">Loading activities…</p>
+          <div class="activity-list" data-activities-results aria-live="polite"></div>
+          <button class="button button-outline activity-load-more" type="button" data-activities-more hidden>Load more</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer wrap"><a class="footer-brand" href="/en/">PSTB<span> Tech</span></a><span>Student association · PSTB</span><a href="/en/about/">About us <span aria-hidden="true">↗</span></a><span>© PSTB Tech</span></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

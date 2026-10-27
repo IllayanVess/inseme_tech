@@ -2,6 +2,19 @@
   command = "npm run build"
   publish = "dist"
 
+# Preserve the previous French About URL after the route folder rename.
+[[redirects]]
+  from = "/qui-sommes-nous"
+  to = "/a-propos/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/qui-sommes-nous/*"
+  to = "/a-propos/:splat"
+  status = 301
+  force = true
+
 # Keep client-side routes working if routes are added later.
 [[redirects]]
   from = "/*"

@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "redactSecrets": true,
+  "scope": "database",
+  "loadOrder": [
+    "public/schema.sql",
+    "public/adp_wipes.sql",
+    "_cluster/extensions/pgcrypto.sql",
+    "_cluster/extensions/uuid-ossp.sql",
+    "public/functions/rls_auto_enable.sql",
+    "_cluster/event_triggers.sql",
+    "public/default_privileges.sql"
+  ],
+  "profile": "supabase",
+  "defaultOwner": "postgres",
+  "files": [
+    "_cluster/event_triggers.sql",
+    "_cluster/extensions/pgcrypto.sql",
+    "_cluster/extensions/uuid-ossp.sql",
+    "public/adp_wipes.sql",
+    "public/default_privileges.sql",
+    "public/functions/rls_auto_enable.sql",
+    "public/schema.sql"
+  ]
+}
