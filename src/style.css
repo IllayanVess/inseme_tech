@@ -396,7 +396,7 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .account-intro { max-width: 670px; margin: 0; color: #c6cce5; font-size: clamp(18px, 2.2vw, 22px); line-height: 1.6; }
 .account-privacy { max-width: 760px; margin: 16px 0 0; color: #b4bad3; font-size: 16px; line-height: 1.65; }
 .account-status { min-height: 30px; margin: 26px 0 18px; color: #a9eff6; font-size: 17px; line-height: 1.55; }
-.account-forms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.account-forms { display: grid; grid-template-columns: minmax(0, 560px); gap: 18px; }
 .account-card { min-width: 0; padding: clamp(22px, 4vw, 34px); border: 1px solid #303651; border-radius: 18px; background: linear-gradient(145deg, rgb(17 20 38 / .95), rgb(9 12 24 / .95)); box-shadow: 0 25px 70px rgb(0 0 0 / .2), inset 0 1px rgb(255 255 255 / .035); }
 .account-card h2 { margin: 0 0 22px; font-size: clamp(24px, 3vw, 30px); letter-spacing: -.04em; }
 .account-card > p { color: #c1c7df; font-size: 17px; line-height: 1.6; }
@@ -420,7 +420,7 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .account-load-more { margin-top: 16px; }
 @media (max-width: 700px) {
   .account-main { min-height: calc(100svh - 70px); padding-block: 50px 65px; }
-  .account-forms { grid-template-columns: 1fr; gap: 13px; }
+  .account-forms { gap: 13px; }
   .account-user-row { grid-template-columns: minmax(0, 1fr) auto; }
   .account-user-email { grid-column: 1 / -1; }
 }

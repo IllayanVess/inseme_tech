@@ -1,13 +1,5 @@
 import { supabase } from '../lib/supabase.js'
 
-export async function createAccount(email, password, redirectTo) {
-  return supabase.auth.signUp({
-    email,
-    password,
-    options: { emailRedirectTo: redirectTo },
-  })
-}
-
 export async function signIn(email, password) {
   return supabase.auth.signInWithPassword({ email, password })
 }
