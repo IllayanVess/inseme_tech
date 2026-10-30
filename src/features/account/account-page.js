@@ -3,7 +3,6 @@ import {
   callAccountAdministration,
   getAccountSession,
   onAccountChange,
-  refreshAccountSession,
   signIn,
   signOut,
 } from '../../services/account.js'
@@ -17,7 +16,6 @@ const pageCopy = {
     member: 'Membre',
     admin: 'Administrateur',
     roleSaved: 'Rôle mis à jour.',
-    adminReady: 'Votre compte administrateur est activé.',
     genericError: 'Une erreur est survenue. Vérifiez les informations et réessayez.',
     invalidCredentials: 'Adresse e-mail ou mot de passe incorrect.',
     emailNotConfirmed: 'Cette adresse e-mail n’a pas été confirmée. Contactez un administrateur.',
@@ -30,7 +28,6 @@ const pageCopy = {
     adminOption: 'Administrateur',
     email: 'E-mail',
     accountLoadError: 'Impossible de charger les comptes.',
-    bootstrapUnavailable: 'La configuration du premier compte administrateur est indisponible.',
   },
   en: {
     loading: 'Loading your account…',
@@ -40,7 +37,6 @@ const pageCopy = {
     member: 'Member',
     admin: 'Administrator',
     roleSaved: 'Role updated.',
-    adminReady: 'Your administrator account is active.',
     genericError: 'Something went wrong. Check your details and try again.',
     invalidCredentials: 'The email or password is incorrect.',
     emailNotConfirmed: 'This email address has not been confirmed. Contact an administrator.',
@@ -53,7 +49,6 @@ const pageCopy = {
     adminOption: 'Administrator',
     email: 'Email',
     accountLoadError: 'Could not load accounts.',
-    bootstrapUnavailable: 'First administrator setup is not available.',
   },
 }
 
@@ -68,8 +63,6 @@ export function initializeAccountPage() {
   const adminPanel = root.querySelector('[data-admin-panel]')
   const userList = root.querySelector('[data-user-list]')
   const loadMoreButton = root.querySelector('[data-load-more]')
-  const bootstrapButton = root.querySelector('[data-bootstrap-admin]')
-  const bootstrapHelp = root.querySelector('[data-bootstrap-help]')
   const pageSize = 50
   let page = 0
   let hasMoreUsers = false
@@ -90,8 +83,6 @@ export function initializeAccountPage() {
     forms.hidden = Boolean(user)
     profile.hidden = !user
     adminPanel.hidden = true
-    bootstrapButton.hidden = true
-    bootstrapHelp.hidden = true
     userList.replaceChildren()
     loadMoreButton.hidden = true
     page = 0
@@ -108,14 +99,6 @@ export function initializeAccountPage() {
     if (isAdmin) {
       adminPanel.hidden = false
       await loadUsers({ append: false })
-      return
-    }
-
-    const { data, error } = await callAccountAdministration('bootstrap-status')
-    if (error) return
-    if (data?.canBootstrap) {
-      adminPanel.hidden = false
-      bootstrapButton.hidden = false
     }
   }
 
@@ -168,24 +151,6 @@ export function initializeAccountPage() {
       return
     }
     await renderProfile(null)
-  })
-
-  bootstrapButton.addEventListener('click', async () => {
-    bootstrapButton.disabled = true
-    setStatus(copy.loading)
-    const { error } = await callAccountAdministration('bootstrap')
-    bootstrapButton.disabled = false
-    if (error) {
-      setStatus(copy.bootstrapUnavailable)
-      return
-    }
-    const { data, error: refreshError } = await refreshAccountSession()
-    if (refreshError) {
-      setStatus(copy.genericError)
-      return
-    }
-    setStatus(copy.adminReady)
-    await renderProfile(data.session?.user ?? currentUser)
   })
 
   loadMoreButton.addEventListener('click', () => loadUsers({ append: true }))

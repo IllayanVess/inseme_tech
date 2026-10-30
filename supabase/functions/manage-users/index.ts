@@ -24,10 +24,6 @@ function getDefaultKey(value: string | undefined, legacyValue: string | undefine
   return legacyValue
 }
 
-function normalizeEmail(email: string | undefined) {
-  return email?.trim().toLocaleLowerCase('en-US') ?? ''
-}
-
 async function countAdministrators(admin: ReturnType<typeof createClient>) {
   const perPage = 1000
   let count = 0
@@ -88,26 +84,6 @@ Deno.serve(async (request: Request) => {
       auth: { autoRefreshToken: false, persistSession: false },
     })
     const callerIsAdmin = caller.app_metadata?.role === 'admin'
-    const firstAdminEmail = normalizeEmail(Deno.env.get('INITIAL_ADMIN_EMAIL'))
-
-    if (action === 'bootstrap-status' || action === 'bootstrap') {
-      if (callerIsAdmin || !firstAdminEmail || normalizeEmail(caller.email) !== firstAdminEmail || !caller.email_confirmed_at) {
-        return action === 'bootstrap-status'
-          ? json({ canBootstrap: false })
-          : json({ error: 'This account cannot initialize administrator access.' }, 403)
-      }
-
-      const administratorCount = await countAdministrators(admin)
-      if (action === 'bootstrap-status') return json({ canBootstrap: administratorCount === 0 })
-      if (administratorCount !== 0) return json({ error: 'Administrator access has already been initialized.' }, 409)
-
-      const { data: updated, error } = await admin.auth.admin.updateUserById(caller.id, {
-        app_metadata: { ...caller.app_metadata, role: 'admin' },
-      })
-      if (error || !updated.user) return json({ error: 'Could not activate administrator access.' }, 500)
-      return json({ ok: true, role: 'admin' })
-    }
-
     if (!callerIsAdmin) return json({ error: 'Administrator access is required.' }, 403)
 
     if (action === 'list-users') {

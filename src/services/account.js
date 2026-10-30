@@ -12,10 +12,6 @@ export async function getAccountSession() {
   return supabase.auth.getSession()
 }
 
-export async function refreshAccountSession() {
-  return supabase.auth.refreshSession()
-}
-
 export async function callAccountAdministration(action, values = {}) {
   return supabase.functions.invoke('manage-users', {
     body: { action, ...values },

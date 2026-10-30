@@ -36,7 +36,7 @@ Only link or push migrations after verifying that the CLI project reference matc
 - Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in local development and Netlify. Browser code must never receive a Supabase secret or service-role key.
 - Create member accounts through **Authentication → Users** in the Supabase Dashboard; the public site provides sign-in only. Disable new user sign-ups in Supabase Auth so direct API sign-ups are also blocked. If using invitations or password reset emails, configure a production email sender (SMTP) first. Add the deployed `/compte/` and `/en/account/` URLs to the Auth redirect allow list for those email links.
 - Deploy `supabase/functions/manage-users/` to the same verified Supabase project as the site. Keep JWT verification enabled.
-- Before initial setup, add `INITIAL_ADMIN_EMAIL` as an Edge Function secret in the Supabase Dashboard. Set it to the email that will own the first administrator account; do not commit it. Create that user in Authentication → Users and confirm the email before using the one-time setup button. Setup is refused if any administrator already exists.
+- Assign the first administrator through a trusted server-side Supabase Auth Admin API operation.
 - New accounts are ordinary members. Administrators can assign `member` or `admin` roles from the account page. Role changes are written only to trusted `app_metadata` by the Edge Function; member listings and role updates are not available to regular users.
 - The function uses the Supabase Edge Function `SUPABASE_SERVICE_ROLE_KEY` only on the server. Never add it to Vite or a `VITE_` environment variable.
 
