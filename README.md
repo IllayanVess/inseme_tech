@@ -9,17 +9,17 @@ PSTB Tech is the PSTB student association for technology and innovation. It make
 - **Website hosting:** Netlify.
 - **Database and backend services:** Supabase.
 
-The site uses Vite, and the Supabase CLI is a project development dependency. Local Supabase configuration lives in `supabase/`. The confirmed hosted project had no association content tables or CLI migration history when setup began. Its public schema is pulled into `supabase/schemas/`; the bilingual event, project, and announcement tables and their access policies are declared there and have been created in the hosted database through the SQL Editor. Recording that change as a versioned migration is still pending.
+The site uses Vite, and the Supabase CLI is a project development dependency. Local Supabase configuration lives in `supabase/`. The hosted project initially had no association-content migration history; `events`, `projects`, and `announcements` had been created through the SQL Editor. The association model and tenant ownership are now recorded in `supabase/migrations/20261031182358_association_model.sql`, which was applied to the hosted prototype.
 
-The public content schema is declared in `supabase/schemas/public/content.sql`. To generate and apply its first migration locally, start Docker Desktop, then use:
+The declarative schema files in `supabase/schemas/` describe the desired database structure. This prototype uses a Docker-free, manually authored migration workflow: create a timestamped file with `npx supabase migration new <name>`, write and review the SQL, then preview and apply it to the verified linked project:
 
 ```sh
-npx supabase start
-npx supabase db diff -f initial_public_content
-npx supabase db reset
+npx supabase migration list --linked
+npx supabase db push --dry-run --linked
+npx supabase db push --linked
 ```
 
-Only link or push migrations after verifying that the CLI project reference matches the intended Supabase project. Keep Supabase secret or service-role credentials out of browser code and commit only environment variable names, not secret values. The browser should use only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+The current migrations are incremental from the existing hosted schema; they are not yet a baseline for recreating that original schema on a fresh project. Only push migrations after verifying that the CLI project reference matches the intended Supabase project. Keep Supabase secret or service-role credentials out of browser code and commit only environment variable names, not secret values. The browser should use only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
 ## Source layout
 

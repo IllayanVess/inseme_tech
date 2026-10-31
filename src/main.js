@@ -4,9 +4,11 @@ import { initializeAboutPage } from './features/about/about-page.js'
 import { initializeMobileNavigation } from './features/navigation/mobile-navigation.js'
 import { initializeHomepageContent } from './features/home/homepage-content.js'
 import { initializeAccountPage } from './features/account/account-page.js'
+import { initializeAssociationPage } from './features/association/association-page.js'
 
 initializeAboutPage()
 initializeActivitiesPage()
 initializeMobileNavigation()
 initializeHomepageContent()
 initializeAccountPage()
+initializeAssociationPage()

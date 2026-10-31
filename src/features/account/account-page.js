@@ -1,4 +1,5 @@
 import { isSupabaseConfigured } from '../../lib/supabase.js'
+import { getMyActiveAssociationMemberships } from '../../services/association-content.js'
 import {
   callAccountAdministration,
   getAccountSession,
@@ -28,6 +29,13 @@ const pageCopy = {
     adminOption: 'Administrateur',
     email: 'E-mail',
     accountLoadError: 'Impossible de charger les comptes.',
+    workspaces: 'Mes associations',
+    noWorkspaces: 'Aucune adhésion active à afficher.',
+    workspaceLoadError: 'Impossible de charger vos associations.',
+    president: 'Président',
+    memberRole: 'Membre',
+    viewAssociation: 'Voir la page publique',
+    unpublishedWorkspace: 'La page publique de cette association n’est pas encore publiée.',
   },
   en: {
     loading: 'Loading your account…',
@@ -49,6 +57,13 @@ const pageCopy = {
     adminOption: 'Administrator',
     email: 'Email',
     accountLoadError: 'Could not load accounts.',
+    workspaces: 'My associations',
+    noWorkspaces: 'There are no active memberships to show.',
+    workspaceLoadError: 'Could not load your associations.',
+    president: 'President',
+    memberRole: 'Member',
+    viewAssociation: 'View public page',
+    unpublishedWorkspace: 'This association’s public page is not published yet.',
   },
 }
 
@@ -60,6 +75,7 @@ export function initializeAccountPage() {
   const status = root.querySelector('[data-account-status]')
   const forms = root.querySelector('[data-account-forms]')
   const profile = root.querySelector('[data-account-profile]')
+  const workspaceList = root.querySelector('[data-workspace-list]')
   const adminPanel = root.querySelector('[data-admin-panel]')
   const userList = root.querySelector('[data-user-list]')
   const loadMoreButton = root.querySelector('[data-load-more]')
@@ -95,10 +111,29 @@ export function initializeAccountPage() {
     root.querySelector('[data-account-email]').textContent = user.email ?? ''
     root.querySelector('[data-account-role]').textContent = isAdmin ? copy.admin : copy.member
     setStatus(copy.signedIn)
+    await loadWorkspaces()
 
     if (isAdmin) {
       adminPanel.hidden = false
       await loadUsers({ append: false })
+    }
+  }
+
+  const loadWorkspaces = async () => {
+    workspaceList.replaceChildren()
+    try {
+      const memberships = await getMyActiveAssociationMemberships()
+      if (!memberships?.length) {
+        appendWorkspaceMessage(workspaceList, copy.noWorkspaces)
+        return
+      }
+      memberships.forEach((membership) => {
+        const association = membership.association
+        if (!association?.slug || !association?.name) return
+        workspaceList.append(createWorkspaceRow(membership, copy))
+      })
+    } catch {
+      appendWorkspaceMessage(workspaceList, copy.workspaceLoadError)
     }
   }
 
@@ -213,6 +248,44 @@ function createUserRow(user, copy) {
 
   row.append(email, select, button)
   return row
+}
+
+function createWorkspaceRow(membership, copy) {
+  const row = document.createElement('article')
+  row.className = 'account-workspace-row'
+  const details = document.createElement('div')
+  const name = document.createElement('h3')
+  name.textContent = membership.association.name
+  const role = document.createElement('span')
+  role.className = 'account-role'
+  role.textContent = membership.permission_role === 'president' ? copy.president : copy.memberRole
+  details.append(name, role)
+  row.append(details)
+
+  const isPublished = membership.association.visibility === 'published'
+    && membership.association.published_at
+    && new Date(membership.association.published_at).getTime() <= Date.now()
+  if (isPublished) {
+    const link = document.createElement('a')
+    link.className = 'account-workspace-link'
+    link.href = `/associations/${encodeURIComponent(membership.association.slug)}/`
+    link.textContent = copy.viewAssociation
+    row.append(link)
+  } else {
+    const note = document.createElement('p')
+    note.className = 'account-workspace-note'
+    note.textContent = copy.unpublishedWorkspace
+    row.append(note)
+  }
+
+  return row
+}
+
+function appendWorkspaceMessage(list, message) {
+  const paragraph = document.createElement('p')
+  paragraph.className = 'account-workspace-empty'
+  paragraph.textContent = message
+  list.append(paragraph)
 }
 
 function messageForAuthError(error, copy) {

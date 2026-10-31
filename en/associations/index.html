@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080910" />
+    <meta name="description" content="Public association page on Inseme Tech." />
+    <title>Association — Inseme Tech</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/en/" aria-label="PSTB Tech, home"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a class="nav-link" href="/en/">Home</a>
+        <a class="nav-link" href="/en/about/">About us</a>
+        <a class="nav-cta" href="/en/activities/">Activities <span aria-hidden="true">↗</span></a>
+        <a class="nav-link" href="/en/account/">My account</a>
+        <div class="language-switch" aria-label="Choose language"><a data-language-fr lang="fr" href="/associations/">FR</a><span aria-hidden="true">/</span><a data-language-en class="selected" lang="en" aria-current="page" href="/en/associations/">EN</a></div>
+      </nav>
+    </header>
+
+    <main class="association-page" data-association-page>
+      <section class="association-hero wrap" aria-labelledby="association-name-heading" data-association-hero hidden>
+        <p class="eyebrow">INSEME TECH · ASSOCIATION</p>
+        <h1 id="association-name-heading" data-association-name>Association</h1>
+        <div data-association-introduction></div>
+      </section>
+      <p class="association-status wrap" data-association-status role="status" aria-live="polite">Loading association…</p>
+
+      <div class="association-content" data-association-content hidden>
+        <section class="association-section wrap" data-association-mission-section hidden aria-labelledby="association-mission-heading">
+          <p class="eyebrow">THE ASSOCIATION</p>
+          <h2 id="association-mission-heading">Our mission</h2>
+          <div data-association-mission></div>
+        </section>
+        <section class="association-section wrap" aria-labelledby="association-events-heading">
+          <p class="eyebrow">MEETUPS · PROJECTS · WORKSHOPS</p>
+          <h2 id="association-events-heading">Upcoming events</h2>
+          <div class="association-event-list" data-association-events></div>
+        </section>
+        <section class="association-section wrap" data-association-links-section hidden aria-labelledby="association-links-heading">
+          <p class="eyebrow">KEEP IN TOUCH</p>
+          <h2 id="association-links-heading">Follow and learn more</h2>
+          <div class="association-link-list" data-association-links></div>
+        </section>
+        <section class="association-section wrap" data-association-contact-section hidden aria-labelledby="association-contact-heading">
+          <p class="eyebrow">GET IN TOUCH</p>
+          <h2 id="association-contact-heading">Contact</h2>
+          <div class="association-contact-list" data-association-contact></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer wrap"><a class="footer-brand" href="/en/">PSTB<span> Tech</span></a><span>Association platform</span><a href="/en/activities/">Activities <span aria-hidden="true">↗</span></a><span>© PSTB Tech</span></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

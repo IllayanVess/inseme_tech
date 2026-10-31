@@ -15,6 +15,28 @@
   status = 301
   force = true
 
+# Reuse bilingual Vite route shells for association slugs while preserving the
+# requested path in the browser for direct links and language switching.
+[[redirects]]
+  from = "/en/associations/:slug"
+  to = "/en/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/en/associations/:slug/"
+  to = "/en/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/associations/:slug"
+  to = "/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/associations/:slug/"
+  to = "/associations/index.html"
+  status = 200
+
 # Keep client-side routes working if routes are added later.
 [[redirects]]
   from = "/*"

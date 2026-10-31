@@ -21,6 +21,8 @@ CREATE TABLE public.events (
   location_fr text,
   location_en text,
   starts_at timestamptz NOT NULL,
+  timezone_name text NOT NULL DEFAULT 'Europe/Paris'
+    CHECK (nullif(btrim(timezone_name), '') IS NOT NULL),
   ends_at timestamptz,
   event_status text NOT NULL DEFAULT 'planned'
     CHECK (event_status IN ('planned', 'open', 'full', 'cancelled', 'completed')),
@@ -32,6 +34,14 @@ CREATE TABLE public.events (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT events_valid_time_range CHECK (ends_at IS NULL OR ends_at > starts_at),
+  CONSTRAINT events_optional_bilingual_pairs CHECK (
+    ((summary_fr IS NULL AND summary_en IS NULL)
+      OR (nullif(btrim(summary_fr), '') IS NOT NULL AND nullif(btrim(summary_en), '') IS NOT NULL))
+    AND ((description_fr IS NULL AND description_en IS NULL)
+      OR (nullif(btrim(description_fr), '') IS NOT NULL AND nullif(btrim(description_en), '') IS NOT NULL))
+    AND ((location_fr IS NULL AND location_en IS NULL)
+      OR (nullif(btrim(location_fr), '') IS NOT NULL AND nullif(btrim(location_en), '') IS NOT NULL))
+  ),
   CONSTRAINT events_bilingual_when_published CHECK (
     publication_status <> 'published'
     OR (nullif(btrim(title_fr), '') IS NOT NULL AND nullif(btrim(title_en), '') IS NOT NULL)
@@ -40,6 +50,9 @@ CREATE TABLE public.events (
 
 CREATE INDEX events_published_starts_at_idx
   ON public.events (starts_at)
+  WHERE publication_status = 'published';
+CREATE INDEX events_published_status_starts_at_idx
+  ON public.events (event_status, starts_at)
   WHERE publication_status = 'published';
 
 CREATE TABLE public.projects (
@@ -69,6 +82,10 @@ CREATE TABLE public.projects (
       AND nullif(btrim(description_fr), '') IS NOT NULL
       AND nullif(btrim(description_en), '') IS NOT NULL
     )
+  ),
+  CONSTRAINT projects_optional_summary_bilingual CHECK (
+    (summary_fr IS NULL AND summary_en IS NULL)
+    OR (nullif(btrim(summary_fr), '') IS NOT NULL AND nullif(btrim(summary_en), '') IS NOT NULL)
   )
 );
 
@@ -100,6 +117,10 @@ CREATE TABLE public.announcements (
       AND nullif(btrim(body_fr), '') IS NOT NULL
       AND nullif(btrim(body_en), '') IS NOT NULL
     )
+  ),
+  CONSTRAINT announcements_optional_summary_bilingual CHECK (
+    (summary_fr IS NULL AND summary_en IS NULL)
+    OR (nullif(btrim(summary_fr), '') IS NOT NULL AND nullif(btrim(summary_en), '') IS NOT NULL)
   )
 );
 
