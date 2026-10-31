@@ -317,6 +317,34 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .home-main::before { content: ""; position: absolute; z-index: -1; inset: -20%; pointer-events: none; background: radial-gradient(ellipse at 50% 42%, rgb(93 104 255 / .22), transparent 30%), radial-gradient(ellipse at 54% 44%, rgb(34 211 238 / .12), transparent 47%); filter: blur(25px); }
 .home-hero { position: relative; isolation: isolate; min-height: calc(100svh - 76px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding-block: 72px 92px; text-align: center; }
 .home-glow { position: absolute; z-index: -1; top: 42%; left: 50%; width: min(80vw, 900px); aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; background: radial-gradient(circle, rgb(92 109 255 / .18), rgb(34 211 238 / .08) 34%, transparent 69%); filter: blur(24px); }
+
+.association-page { min-height: 70vh; padding-bottom: 7rem; }
+.association-hero { position: relative; isolation: isolate; padding-top: clamp(5rem, 12vw, 10rem); padding-bottom: clamp(4rem, 8vw, 7rem); }
+.association-hero::before { content: ""; position: absolute; z-index: -1; inset: 0 -10vw; pointer-events: none; background: radial-gradient(ellipse at 72% 24%, rgb(79 70 229 / .18), transparent 34%), linear-gradient(rgb(238 240 255 / .035) 1px, transparent 1px), linear-gradient(90deg, rgb(238 240 255 / .035) 1px, transparent 1px); background-size: auto, 56px 56px, 56px 56px; mask-image: linear-gradient(to bottom, black, transparent 94%); }
+.association-hero h1 { max-width: 16ch; margin: 1.25rem 0; font-size: clamp(3rem, 9vw, 7rem); line-height: .98; letter-spacing: -.065em; }
+.association-hero [data-association-introduction] { max-width: 62ch; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.7; }
+.association-status { min-height: 2rem; padding-top: 1rem; color: var(--muted); }
+.association-content[data-accent="cyan"] { --association-accent: #22d3ee; }
+.association-content[data-accent="violet"] { --association-accent: #a78bfa; }
+.association-content[data-accent="blue"] { --association-accent: #60a5fa; }
+.association-content[data-accent="indigo"], .association-content:not([data-accent]) { --association-accent: #818cf8; }
+.association-section { padding-top: clamp(3rem, 7vw, 6rem); }
+.association-section h2 { max-width: 22ch; margin: .75rem 0 1.5rem; font-size: clamp(1.9rem, 5vw, 3.5rem); line-height: 1.08; letter-spacing: -.04em; }
+.association-section [data-association-mission] p { max-width: 68ch; color: var(--muted); font-size: 1.1rem; line-height: 1.75; }
+.association-event-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; }
+.association-event-card { display: flex; flex-direction: column; justify-content: space-between; min-height: 13rem; padding: 1.5rem; border: 1px solid rgb(165 180 252 / .16); border-radius: 1rem; background: linear-gradient(145deg, rgb(24 27 48 / .88), rgb(10 12 22 / .9)); box-shadow: inset 0 1px rgb(255 255 255 / .035); }
+.association-event-card .eyebrow { color: var(--association-accent); }
+.association-event-card h3 { margin: .8rem 0 .5rem; font-size: 1.35rem; line-height: 1.25; }
+.association-event-card p { color: var(--muted); line-height: 1.6; }
+.association-event-meta { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgb(165 180 252 / .14); font-size: .9rem; }
+.association-empty { color: var(--muted); }
+.association-link-list, .association-contact-list { display: flex; flex-wrap: wrap; gap: .75rem; }
+.association-link-list a, .association-contact-list a, .association-contact-list span { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .65rem 1rem; border: 1px solid rgb(165 180 252 / .2); border-radius: 999px; color: var(--fg); text-decoration: none; background: rgb(17 20 35 / .72); }
+.association-link-list a:hover, .association-contact-list a:hover { border-color: var(--association-accent); }
+.association-link-list a:focus-visible, .association-contact-list a:focus-visible { outline: 3px solid var(--association-accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) {
+  .association-link-list a, .association-contact-list a { transition: border-color .18s ease, background-color .18s ease; }
+}
 .home-title { max-width: 1000px; margin: 0; font-size: clamp(64px, 10vw, 132px); line-height: .94; font-weight: 650; letter-spacing: -.075em; text-shadow: 0 0 70px rgb(34 211 238 / .13); }
 .home-title em { background-image: linear-gradient(105deg, #a9a7ff 5%, #79f0ff 55%, #b7ffff 100%); filter: drop-shadow(0 0 32px rgb(34 211 238 / .28)); }
 .home-lede { max-width: 670px; margin: 32px 0 0; color: #c6cce5; font-size: clamp(18px, 2.1vw, 22px); line-height: 1.6; }
@@ -410,6 +438,15 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .account-profile { max-width: 620px; }
 .account-profile [data-account-email] { overflow-wrap: anywhere; font-weight: 600; }
 .account-role { display: inline-flex; padding: 9px 13px; border: 1px solid #38415e; border-radius: 999px; color: #a9eff6 !important; }
+.account-workspaces { margin-top: 28px; padding-top: 22px; border-top: 1px solid #303651; }
+.account-workspaces h3 { margin: 0 0 14px; font-size: 20px; }
+.account-workspace-list { display: grid; gap: 10px; }
+.account-workspace-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px; border: 1px solid #2c324b; border-radius: 12px; background: rgb(6 8 17 / .62); }
+.account-workspace-row h3 { margin: 0 0 8px; font-size: 17px; }
+.account-workspace-row .account-role { margin: 0; padding: 5px 9px; font-size: 13px; }
+.account-workspace-link { flex: 0 0 auto; color: #a9eff6; text-decoration: underline; text-underline-offset: 3px; }
+.account-workspace-link:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 4px; }
+.account-workspace-note, .account-workspace-empty { margin: 0; color: #b4bad3; font-size: 14px; line-height: 1.5; }
 .account-admin { margin-top: 22px; }
 .account-user-list { display: grid; gap: 10px; margin-top: 23px; }
 .account-user-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 200px) auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid #2c324b; border-radius: 12px; background: rgb(6 8 17 / .62); }
@@ -423,6 +460,7 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
   .account-forms { gap: 13px; }
   .account-user-row { grid-template-columns: minmax(0, 1fr) auto; }
   .account-user-email { grid-column: 1 / -1; }
+  .account-workspace-row { align-items: flex-start; flex-direction: column; }
 }
 @media (max-width: 600px) {
   .account-page .site-header { height: 70px; padding-inline: 20px; }
