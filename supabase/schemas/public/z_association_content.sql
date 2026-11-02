@@ -353,10 +353,8 @@ CREATE POLICY association_positions_read ON public.association_positions
         AND association.published_at IS NOT NULL
         AND association.published_at <= now()
     )
-    OR (auth.role() = 'authenticated' AND (
-      private.is_platform_admin()
-      OR private.has_association_role(association_id, ARRAY['president']::text[])
-    ))
+    OR private.is_platform_admin()
+    OR private.has_association_role(association_id, ARRAY['president']::text[])
   );
 CREATE POLICY association_positions_manage ON public.association_positions
   FOR ALL TO authenticated
@@ -381,10 +379,8 @@ CREATE POLICY member_position_assignments_read ON public.member_position_assignm
         AND association.published_at IS NOT NULL AND association.published_at <= now()
         AND private.is_public_member_profile(profile.association_id, profile.id)
     )
-    OR (auth.role() = 'authenticated' AND (
-      private.is_platform_admin()
-      OR private.has_association_role(association_id, ARRAY['president']::text[])
-    ))
+    OR private.is_platform_admin()
+    OR private.has_association_role(association_id, ARRAY['president']::text[])
   );
 CREATE POLICY member_position_assignments_manage ON public.member_position_assignments
   FOR ALL TO authenticated
@@ -572,8 +568,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.associations,
   public.member_position_assignments, public.events, public.projects,
   public.announcements, public.event_media, public.event_links, public.event_people
 TO authenticated;
-GRANT SELECT, INSERT (association_id, user_id, permission_role, status),
-  UPDATE (permission_role, status) ON public.association_memberships TO authenticated;
+GRANT SELECT, INSERT (association_id, user_id, status),
+  UPDATE (status) ON public.association_memberships TO authenticated;
 GRANT SELECT ON public.association_memberships TO authenticated;
 GRANT UPDATE (slug, display_name, bio_fr, bio_en, photo_path, is_public, consented_at)
   ON public.member_profiles TO authenticated;
@@ -607,3 +603,167 @@ CREATE TRIGGER event_links_set_updated_at BEFORE UPDATE ON public.event_links
   FOR EACH ROW EXECUTE FUNCTION private.set_updated_at();
 CREATE TRIGGER event_people_set_updated_at BEFORE UPDATE ON public.event_people
   FOR EACH ROW EXECUTE FUNCTION private.set_updated_at();
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'association-media',
+  'association-media',
+  false,
+  5242880,
+  ARRAY['image/jpeg', 'image/png', 'image/webp']
+)
+ON CONFLICT (id) DO UPDATE
+SET public = EXCLUDED.public,
+    file_size_limit = EXCLUDED.file_size_limit,
+    allowed_mime_types = EXCLUDED.allowed_mime_types;
+
+CREATE POLICY association_media_read ON storage.objects
+  FOR SELECT TO anon, authenticated USING (
+    bucket_id = 'association-media'
+    AND (
+      EXISTS (
+        SELECT 1 FROM public.associations AS association
+        WHERE association.visibility = 'published'
+          AND association.published_at IS NOT NULL
+          AND association.published_at <= now()
+          AND (association.logo_path = name OR association.cover_path = name)
+      )
+      OR CASE
+        WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+        THEN private.is_platform_admin()
+          OR private.has_association_role(
+            (storage.foldername(name))[1]::uuid,
+            ARRAY['president']::text[]
+          )
+        ELSE false
+      END
+    )
+  );
+CREATE POLICY association_media_upload ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (
+    bucket_id = 'association-media'
+    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+    AND (
+      private.is_platform_admin()
+      OR private.has_association_role(
+        (storage.foldername(name))[1]::uuid,
+        ARRAY['president']::text[]
+      )
+    )
+  );
+CREATE POLICY association_media_update ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (
+    bucket_id = 'association-media'
+    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+    AND (
+      private.is_platform_admin()
+      OR private.has_association_role(
+        (storage.foldername(name))[1]::uuid,
+        ARRAY['president']::text[]
+      )
+    )
+  )
+  WITH CHECK (
+    bucket_id = 'association-media'
+    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+    AND (
+      private.is_platform_admin()
+      OR private.has_association_role(
+        (storage.foldername(name))[1]::uuid,
+        ARRAY['president']::text[]
+      )
+    )
+  );
+CREATE POLICY association_media_delete ON storage.objects
+  FOR DELETE TO authenticated USING (
+    bucket_id = 'association-media'
+    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+    AND (
+      private.is_platform_admin()
+      OR private.has_association_role(
+        (storage.foldername(name))[1]::uuid,
+        ARRAY['president']::text[]
+      )
+    )
+  );
+
+CREATE FUNCTION public.create_association_workspace(
+  p_slug text,
+  p_name text,
+  p_introduction_fr text,
+  p_introduction_en text,
+  p_president_user_id uuid,
+  p_assigned_by uuid
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
+DECLARE
+  new_association_id uuid;
+BEGIN
+  IF auth.jwt() ->> 'role' IS DISTINCT FROM 'service_role' THEN
+    RAISE EXCEPTION 'Service role required' USING ERRCODE = '42501';
+  END IF;
+
+  INSERT INTO public.associations (slug, name, introduction_fr, introduction_en)
+  VALUES (
+    lower(btrim(p_slug)),
+    btrim(p_name),
+    nullif(btrim(p_introduction_fr), ''),
+    nullif(btrim(p_introduction_en), '')
+  )
+  RETURNING id INTO new_association_id;
+
+  INSERT INTO public.association_memberships (
+    association_id, user_id, permission_role, status, assigned_by
+  )
+  VALUES (new_association_id, p_president_user_id, 'president', 'active', p_assigned_by);
+
+  RETURN new_association_id;
+END;
+$$;
+
+CREATE FUNCTION public.set_association_president(
+  p_association_id uuid,
+  p_president_user_id uuid,
+  p_assigned_by uuid
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
+BEGIN
+  IF auth.jwt() ->> 'role' IS DISTINCT FROM 'service_role' THEN
+    RAISE EXCEPTION 'Service role required' USING ERRCODE = '42501';
+  END IF;
+
+  UPDATE public.association_memberships
+  SET permission_role = 'member'
+  WHERE association_id = p_association_id
+    AND permission_role = 'president'
+    AND status = 'active'
+    AND user_id <> p_president_user_id;
+
+  INSERT INTO public.association_memberships (
+    association_id, user_id, permission_role, status, assigned_by
+  )
+  VALUES (p_association_id, p_president_user_id, 'president', 'active', p_assigned_by)
+  ON CONFLICT (association_id, user_id) DO UPDATE
+  SET permission_role = 'president',
+      status = 'active',
+      assigned_by = EXCLUDED.assigned_by;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.create_association_workspace(text, text, text, text, uuid, uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION public.set_association_president(uuid, uuid, uuid)
+  FROM PUBLIC, anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.create_association_workspace(text, text, text, text, uuid, uuid)
+  TO service_role;
+GRANT EXECUTE ON FUNCTION public.set_association_president(uuid, uuid, uuid)
+  TO service_role;

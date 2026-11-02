@@ -12,7 +12,7 @@
       <a class="wordmark" href="/" aria-label="PSTB Tech, accueil"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Ouvrir le menu"><span></span><span></span></button>
       <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
-        <a class="nav-link" href="/">Accueil</a><a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a><a class="nav-cta" href="/activites/">Nos activités <span aria-hidden="true">↗</span></a><a class="nav-link active" href="/compte/" aria-current="page">Mon compte</a>
+        <a class="nav-link" href="/">Accueil</a><a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a><a class="nav-link" href="/associations/">Associations</a><a class="nav-cta" href="/activites/">Activités <span aria-hidden="true">↗</span></a><a class="nav-link active" href="/compte/" aria-current="page">Mon compte</a>
         <div class="language-switch" aria-label="Choisir la langue"><a class="selected" href="/compte/" lang="fr" aria-current="page">FR</a><span aria-hidden="true">/</span><a href="/en/account/" lang="en">EN</a></div>
       </nav>
     </header>
@@ -48,6 +48,189 @@
           <p>Attribuez ou retirez le rôle administrateur des comptes PSTB Tech.</p>
           <div class="account-user-list" data-user-list></div>
           <button class="account-load-more" data-load-more type="button" hidden>Charger plus de comptes</button>
+        </section>
+        <section class="account-card workspace-editor" data-workspace-editor hidden aria-labelledby="workspace-editor-title">
+          <p class="eyebrow">GESTION ASSOCIATIVE</p>
+          <h2 id="workspace-editor-title">Modifier un espace</h2>
+          <label for="workspace-select">Association</label>
+          <select id="workspace-select" data-workspace-select></select>
+          <p class="account-status" data-workspace-status role="status" aria-live="polite"></p>
+          <div data-workspace-editor-body hidden>
+            <form data-workspace-profile-form class="workspace-form">
+              <h3>Identité et page publique</h3>
+              <label for="workspace-name">Nom public</label>
+              <input id="workspace-name" name="name" maxlength="120" required />
+              <label for="workspace-slug">Adresse publique</label>
+              <input id="workspace-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" required />
+              <label for="workspace-intro-fr">Présentation — français</label>
+              <textarea id="workspace-intro-fr" name="introduction_fr" maxlength="4000" required></textarea>
+              <label for="workspace-intro-en">Introduction — English</label>
+              <textarea id="workspace-intro-en" name="introduction_en" maxlength="4000" required></textarea>
+              <label for="workspace-mission-fr">Mission — français</label>
+              <textarea id="workspace-mission-fr" name="mission_fr" maxlength="4000"></textarea>
+              <label for="workspace-mission-en">Mission — English</label>
+              <textarea id="workspace-mission-en" name="mission_en" maxlength="4000"></textarea>
+              <label for="workspace-email">E-mail public</label>
+              <input id="workspace-email" name="public_email" type="email" maxlength="254" />
+              <label for="workspace-phone">Téléphone public</label>
+              <input id="workspace-phone" name="public_phone" type="tel" maxlength="40" />
+              <label for="workspace-website">Site web (HTTPS)</label>
+              <input id="workspace-website" name="website_url" type="url" />
+              <label for="workspace-theme">Couleur de marque</label>
+              <select id="workspace-theme" name="theme_accent">
+                <option value="indigo">Indigo</option><option value="cyan">Cyan</option>
+                <option value="violet">Violet</option><option value="blue">Bleu</option>
+              </select>
+              <p data-theme-contrast aria-live="polite"></p>
+              <div class="workspace-theme-preview" data-theme-preview data-accent="indigo" aria-label="Aperçu de la marque">
+                <img data-preview-logo alt="" hidden /><img data-preview-cover alt="" hidden />
+                <strong>Aperçu de l’association</strong><span>Texte de démonstration</span>
+              </div>
+              <label for="workspace-logo">Logo (PNG, JPEG ou WebP, 5 Mo max.)</label>
+              <input id="workspace-logo" name="logo_file" type="file" accept="image/png,image/jpeg,image/webp" />
+              <span data-logo-current></span>
+              <label for="workspace-logo-alt-fr">Texte alternatif du logo — français</label>
+              <input id="workspace-logo-alt-fr" name="logo_alt_fr" maxlength="200" />
+              <label for="workspace-logo-alt-en">Logo alt text — English</label>
+              <input id="workspace-logo-alt-en" name="logo_alt_en" maxlength="200" />
+              <label class="workspace-check"><input data-clear-logo type="checkbox" /> Supprimer le logo actuel</label>
+              <label for="workspace-cover">Bannière (PNG, JPEG ou WebP, 5 Mo max.)</label>
+              <input id="workspace-cover" name="cover_file" type="file" accept="image/png,image/jpeg,image/webp" />
+              <span data-cover-current></span>
+              <label for="workspace-cover-alt-fr">Texte alternatif de la bannière — français</label>
+              <input id="workspace-cover-alt-fr" name="cover_alt_fr" maxlength="200" />
+              <label for="workspace-cover-alt-en">Banner alt text — English</label>
+              <input id="workspace-cover-alt-en" name="cover_alt_en" maxlength="200" />
+              <label class="workspace-check"><input data-clear-cover type="checkbox" /> Supprimer la bannière actuelle</label>
+              <label class="workspace-check"><input name="media_rights_confirmed" type="checkbox" /> Je confirme disposer des droits et consentements nécessaires pour publier les images envoyées</label>
+              <label for="workspace-visibility">Publication</label>
+              <select id="workspace-visibility" name="visibility">
+                <option value="draft">Brouillon</option><option value="published">Publié</option><option value="archived">Archivé</option>
+              </select>
+              <button class="button button-dark account-submit" type="submit">Enregistrer la page</button>
+            </form>
+
+            <section class="workspace-subsection" aria-labelledby="workspace-sections-title">
+              <h3 id="workspace-sections-title">Sections de page bilingues</h3>
+              <p>Les sections utilisent uniquement du texte et des modèles accessibles, sans HTML ni scripts.</p>
+              <form data-section-form class="workspace-form">
+                <input type="hidden" name="id" /><input type="hidden" name="section_key" />
+                <label for="workspace-section-type">Modèle</label>
+                <select id="workspace-section-type" name="section_type">
+                  <option value="about">Présentation</option><option value="mission">Mission</option>
+                  <option value="activities">Activités</option><option value="projects">Projets</option>
+                  <option value="contact">Contact</option><option value="custom">Autre section</option>
+                </select>
+                <label for="workspace-section-title-fr">Titre — français</label>
+                <input id="workspace-section-title-fr" name="title_fr" maxlength="160" required />
+                <label for="workspace-section-title-en">Title — English</label>
+                <input id="workspace-section-title-en" name="title_en" maxlength="160" required />
+                <label for="workspace-section-body-fr">Contenu — français</label>
+                <textarea id="workspace-section-body-fr" name="body_fr" maxlength="5000" required></textarea>
+                <label for="workspace-section-body-en">Content — English</label>
+                <textarea id="workspace-section-body-en" name="body_en" maxlength="5000" required></textarea>
+                <label for="workspace-section-order">Ordre d’affichage</label>
+                <input id="workspace-section-order" name="display_order" type="number" value="0" min="0" max="1000" />
+                <label class="workspace-check"><input name="publish" type="checkbox" /> Publier cette section</label>
+                <button class="button button-dark account-submit" type="submit">Enregistrer la section</button>
+              </form>
+              <div class="workspace-list" data-section-list></div>
+            </section>
+
+            <section class="workspace-subsection" aria-labelledby="workspace-links-title">
+              <h3 id="workspace-links-title">Liens sociaux</h3>
+              <form data-social-form class="workspace-form">
+                <input type="hidden" name="id" />
+                <label for="workspace-link-platform">Plateforme</label>
+                <select id="workspace-link-platform" name="platform">
+                  <option value="website">Site web</option><option value="instagram">Instagram</option>
+                  <option value="linkedin">LinkedIn</option><option value="youtube">YouTube</option>
+                  <option value="tiktok">TikTok</option><option value="facebook">Facebook</option>
+                  <option value="x">X</option><option value="other">Autre</option>
+                </select>
+                <label for="workspace-link-url">Adresse HTTPS</label>
+                <input id="workspace-link-url" name="url" type="url" required />
+                <label for="workspace-link-label-fr">Libellé — français</label>
+                <input id="workspace-link-label-fr" name="label_fr" maxlength="120" required />
+                <label for="workspace-link-label-en">Label — English</label>
+                <input id="workspace-link-label-en" name="label_en" maxlength="120" required />
+                <label for="workspace-link-order">Ordre d’affichage</label>
+                <input id="workspace-link-order" name="display_order" type="number" value="0" min="0" max="1000" />
+                <label class="workspace-check"><input name="publish" type="checkbox" /> Publier ce lien</label>
+                <button class="button button-dark account-submit" type="submit">Enregistrer le lien</button>
+              </form>
+              <div class="workspace-list" data-social-list></div>
+            </section>
+
+            <section class="workspace-subsection" aria-labelledby="workspace-positions-title">
+              <h3 id="workspace-positions-title">Fiches de rôle publiques</h3>
+              <p>Ces titres sont des informations publiques et ne donnent aucun droit d’accès.</p>
+              <form data-position-form class="workspace-form">
+                <input type="hidden" name="id" />
+                <label for="workspace-position-title-fr">Rôle — français</label>
+                <input id="workspace-position-title-fr" name="title_fr" maxlength="120" required />
+                <label for="workspace-position-title-en">Role — English</label>
+                <input id="workspace-position-title-en" name="title_en" maxlength="120" required />
+                <label for="workspace-position-responsibility-fr">Responsabilité — français</label>
+                <input id="workspace-position-responsibility-fr" name="responsibility_fr" maxlength="500" />
+                <label for="workspace-position-responsibility-en">Responsibility — English</label>
+                <input id="workspace-position-responsibility-en" name="responsibility_en" maxlength="500" />
+                <label for="workspace-position-tasks-fr">Missions — français</label>
+                <textarea id="workspace-position-tasks-fr" name="tasks_fr" maxlength="3000"></textarea>
+                <label for="workspace-position-tasks-en">Tasks — English</label>
+                <textarea id="workspace-position-tasks-en" name="tasks_en" maxlength="3000"></textarea>
+                <label for="workspace-position-order">Ordre d’affichage</label>
+                <input id="workspace-position-order" name="display_order" type="number" value="0" min="0" max="1000" />
+                <label class="workspace-check"><input name="is_active" type="checkbox" checked /> Afficher cette fiche</label>
+                <button class="button button-dark account-submit" type="submit">Enregistrer le rôle</button>
+              </form>
+              <div class="workspace-list" data-position-list></div>
+              <form data-assignment-form class="workspace-form">
+                <h4>Attribuer une fiche à un profil public</h4>
+                <label for="workspace-assignment-position">Fiche de rôle</label>
+                <select id="workspace-assignment-position" name="position_id" required></select>
+                <label for="workspace-assignment-member">Profil public</label>
+                <select id="workspace-assignment-member" name="member_profile_id" required></select>
+                <p data-public-only-note></p>
+                <button class="button button-dark account-submit" type="submit">Attribuer</button>
+              </form>
+              <div class="workspace-list" data-assignment-list></div>
+            </section>
+          </div>
+        </section>
+        <section class="account-card account-admin-workspaces" data-admin-workspace-tools hidden aria-labelledby="admin-workspace-title">
+          <h2 id="admin-workspace-title">Gestion des espaces associatifs</h2>
+          <p data-admin-workspace-status role="status" aria-live="polite"></p>
+          <form data-create-workspace-form class="workspace-form">
+            <h3>Créer un espace et désigner sa présidence</h3>
+            <label for="new-workspace-name">Nom de l’association</label>
+            <input id="new-workspace-name" name="name" maxlength="120" required />
+            <label for="new-workspace-slug">Adresse courte</label>
+            <input id="new-workspace-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" required />
+            <label for="new-workspace-intro-fr">Présentation — français</label>
+            <textarea id="new-workspace-intro-fr" name="introduction_fr" maxlength="4000" required></textarea>
+            <label for="new-workspace-intro-en">Introduction — English</label>
+            <textarea id="new-workspace-intro-en" name="introduction_en" maxlength="4000" required></textarea>
+            <label for="new-workspace-president">E-mail d’un compte confirmé</label>
+            <input id="new-workspace-president" name="president_email" type="email" maxlength="254" required />
+            <button class="button button-dark account-submit" type="submit">Créer l’espace</button>
+          </form>
+          <form data-transfer-president-form class="workspace-form">
+            <h3>Transférer la présidence</h3>
+            <label for="transfer-workspace">Association</label>
+            <select id="transfer-workspace" data-admin-association-select name="association_id" required></select>
+            <label for="transfer-president-email">E-mail d’un compte confirmé</label>
+            <input id="transfer-president-email" name="president_email" type="email" maxlength="254" required />
+            <button class="button button-dark account-submit" type="submit">Attribuer la présidence</button>
+          </form>
+          <form data-remove-member-form class="workspace-form">
+            <h3>Retirer l’accès d’un membre</h3>
+            <label for="remove-workspace">Association</label>
+            <select id="remove-workspace" data-admin-association-select name="association_id" required></select>
+            <label for="remove-member-email">E-mail du compte membre</label>
+            <input id="remove-member-email" name="member_email" type="email" maxlength="254" required />
+            <button class="button button-dark account-submit" type="submit">Retirer l’accès</button>
+          </form>
         </section>
       </section>
     </main>

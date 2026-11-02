@@ -312,7 +312,7 @@ STABLE
 SECURITY DEFINER
 SET search_path = ''
 AS $$
-  SELECT (auth.uid() IS NOT NULL OR auth.role() = 'anon') AND EXISTS (
+  SELECT (auth.uid() IS NOT NULL OR auth.jwt() ->> 'role' = 'anon') AND EXISTS (
     SELECT 1
     FROM public.member_profiles AS profile
     JOIN public.association_memberships AS membership
@@ -360,7 +360,7 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-  IF auth.uid() IS NULL AND auth.role() <> 'service_role' THEN
+  IF auth.uid() IS NULL AND (auth.jwt() ->> 'role') IS DISTINCT FROM 'service_role' THEN
     RETURN NEW;
   END IF;
 
@@ -406,7 +406,7 @@ DECLARE
 BEGIN
   IF (NEW.is_public IS DISTINCT FROM OLD.is_public
       OR NEW.consented_at IS DISTINCT FROM OLD.consented_at)
-    AND auth.role() IS DISTINCT FROM 'service_role' THEN
+    AND (auth.jwt() ->> 'role') IS DISTINCT FROM 'service_role' THEN
     SELECT membership.user_id INTO profile_owner
     FROM public.association_memberships AS membership
     WHERE membership.association_id = OLD.association_id

@@ -1,5 +1,6 @@
 import { isSupabaseConfigured } from '../../lib/supabase.js'
 import { getMyActiveAssociationMemberships } from '../../services/association-content.js'
+import { initializeWorkspaceEditor } from '../workspace/workspace-editor.js'
 import {
   callAccountAdministration,
   getAccountSession,
@@ -79,6 +80,7 @@ export function initializeAccountPage() {
   const adminPanel = root.querySelector('[data-admin-panel]')
   const userList = root.querySelector('[data-user-list]')
   const loadMoreButton = root.querySelector('[data-load-more]')
+  const workspaceEditor = initializeWorkspaceEditor({ accountRoot: root })
   const pageSize = 50
   let page = 0
   let hasMoreUsers = false
@@ -105,13 +107,15 @@ export function initializeAccountPage() {
 
     if (!user) {
       setStatus(copy.signedOut)
+      await workspaceEditor.setContext({ user: null, memberships: [], isAdmin: false })
       return
     }
 
     root.querySelector('[data-account-email]').textContent = user.email ?? ''
     root.querySelector('[data-account-role]').textContent = isAdmin ? copy.admin : copy.member
     setStatus(copy.signedIn)
-    await loadWorkspaces()
+    const memberships = await loadWorkspaces()
+    await workspaceEditor.setContext({ user, memberships, isAdmin })
 
     if (isAdmin) {
       adminPanel.hidden = false
@@ -125,15 +129,18 @@ export function initializeAccountPage() {
       const memberships = await getMyActiveAssociationMemberships()
       if (!memberships?.length) {
         appendWorkspaceMessage(workspaceList, copy.noWorkspaces)
-        return
+        return []
       }
       memberships.forEach((membership) => {
         const association = membership.association
         if (!association?.slug || !association?.name) return
         workspaceList.append(createWorkspaceRow(membership, copy))
       })
-    } catch {
+      return memberships
+    } catch (error) {
+      console.error('Association memberships could not be loaded:', error)
       appendWorkspaceMessage(workspaceList, copy.workspaceLoadError)
+      return []
     }
   }
 
@@ -267,8 +274,9 @@ function createWorkspaceRow(membership, copy) {
     && new Date(membership.association.published_at).getTime() <= Date.now()
   if (isPublished) {
     const link = document.createElement('a')
+    const languagePrefix = document.documentElement.lang === 'en' ? '/en' : ''
     link.className = 'account-workspace-link'
-    link.href = `/associations/${encodeURIComponent(membership.association.slug)}/`
+    link.href = `${languagePrefix}/associations/${encodeURIComponent(membership.association.slug)}/`
     link.textContent = copy.viewAssociation
     row.append(link)
   } else {

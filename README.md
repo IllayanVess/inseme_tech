@@ -23,7 +23,7 @@ The current migrations are incremental from the existing hosted schema; they are
 
 ## Source layout
 
-- `index.html`, `a-propos/`, `activites/`, and `en/` contain the directly addressable French and English routes.
+- `index.html`, `a-propos/`, `activites/`, `associations/`, and `en/` contain the directly addressable French and English routes.
 - `src/main.js` is the browser entry point and initializes shared page features.
 - `src/features/` contains page behavior and DOM rendering.
 - `src/services/` contains Supabase data queries; `src/lib/` contains the Supabase client setup.
@@ -39,6 +39,14 @@ The current migrations are incremental from the existing hosted schema; they are
 - Assign the first administrator through a trusted server-side Supabase Auth Admin API operation.
 - New accounts are ordinary members. Administrators can assign `member` or `admin` roles from the account page. Role changes are written only to trusted `app_metadata` by the Edge Function; member listings and role updates are not available to regular users.
 - The function uses the Supabase Edge Function `SUPABASE_SERVICE_ROLE_KEY` only on the server. Never add it to Vite or a `VITE_` environment variable.
+
+## Association workspaces
+
+- Every page links to the French or English association directory from its burger menu. Published workspace pages use `/associations/<slug>/` and `/en/associations/<slug>/`.
+- Active association presidents can edit their own association's bilingual identity, publication state, approved color palette, logo/cover, safe text sections, social links, and display-only role cards from their account page. Public profile assignments require a public, consented member profile.
+- Platform administrators can create draft workspaces for existing, email-confirmed accounts, transfer a workspace presidency, and remove ordinary member access. A transfer demotes the previous president to an ordinary member; transfer the presidency before removing that person's membership.
+- Association media uses the private `association-media` Storage bucket. It accepts PNG, JPEG, and WebP files up to 5 MB; uploaded paths are scoped to an association UUID and object access is controlled by Storage RLS. The editor requires bilingual alt text and confirmation of image rights/consent before upload.
+- Apply and review `supabase/migrations/20261102112518_association_workspace_management.sql` and deploy the updated `supabase/functions/manage-users/` to the verified project before relying on workspace administration or media uploads. Do not push this migration without checking the linked project and its migration history.
 
 ## Licensing
 

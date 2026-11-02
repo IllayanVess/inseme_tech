@@ -49,3 +49,11 @@ paired bilingual fields, time-zone metadata, accessible image labels, member
 link consent, event report references, and related policies. It has not been
 applied to the hosted project. Review and push it only after confirming the
 linked project and remote migration history.
+
+`20261102112518_association_workspace_management.sql` adds the private,
+association-scoped media bucket and policies, restricts browser membership
+writes so elevated president permission stays server-side, and adds
+service-role-only workspace creation and president-transfer transactions. It
+has not been applied to the hosted project. Review it with the declarative
+schema changes and verify cross-association access in local or preview
+development before deployment.

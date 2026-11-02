@@ -14,7 +14,8 @@
       <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
         <a class="nav-link" href="/">Accueil</a>
         <a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a>
-        <a class="nav-cta" href="/activites/">Nos activités <span aria-hidden="true">↗</span></a>
+        <a class="nav-link active" href="/associations/">Associations</a>
+        <a class="nav-cta" href="/activites/">Activités <span aria-hidden="true">↗</span></a>
         <a class="nav-link" href="/compte/">Mon compte</a>
         <div class="language-switch" aria-label="Choisir la langue"><a data-language-fr class="selected" lang="fr" aria-current="page" href="/associations/">FR</a><span aria-hidden="true">/</span><a data-language-en lang="en" href="/en/associations/">EN</a></div>
       </nav>
@@ -25,8 +26,16 @@
         <p class="eyebrow">INSEME TECH · ASSOCIATION</p>
         <h1 id="association-name-heading" data-association-name>Association</h1>
         <div data-association-introduction></div>
+        <div class="association-brand-media" data-association-brand-media></div>
       </section>
       <p class="association-status wrap" data-association-status role="status" aria-live="polite">Chargement de l’association…</p>
+
+      <section class="association-directory wrap" data-association-directory hidden aria-labelledby="association-directory-title">
+        <p class="eyebrow">INSEME TECH · ASSOCIATIONS</p>
+        <h1 id="association-directory-title">Associations</h1>
+        <p>Découvrez les associations et leurs actualités.</p>
+        <div class="association-directory-list" data-association-directory-list></div>
+      </section>
 
       <div class="association-content" data-association-content hidden>
         <section class="association-section wrap" data-association-mission-section hidden aria-labelledby="association-mission-heading">
@@ -48,6 +57,11 @@
           <p class="eyebrow">NOUS CONTACTER</p>
           <h2 id="association-contact-heading">Contact</h2>
           <div class="association-contact-list" data-association-contact></div>
+        </section>
+        <section class="association-section wrap" data-association-team-section hidden aria-labelledby="association-team-heading">
+          <p class="eyebrow">ÉQUIPE · RESPONSABILITÉS</p>
+          <h2 id="association-team-heading">Notre équipe</h2>
+          <div class="association-team-list" data-association-team></div>
         </section>
       </div>
     </main>

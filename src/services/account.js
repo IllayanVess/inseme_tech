@@ -13,9 +13,20 @@ export async function getAccountSession() {
 }
 
 export async function callAccountAdministration(action, values = {}) {
-  return supabase.functions.invoke('manage-users', {
+  const result = await supabase.functions.invoke('manage-users', {
     body: { action, ...values },
   })
+  if (!result.error) return result
+
+  const response = result.error.context
+  if (response && typeof response.json === 'function') {
+    try {
+      return { data: await response.json(), error: result.error }
+    } catch {
+      return result
+    }
+  }
+  return result
 }
 
 export function onAccountChange(callback) {

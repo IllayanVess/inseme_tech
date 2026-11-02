@@ -44,6 +44,32 @@ async function findUser(admin: ReturnType<typeof createClient>, id: string) {
   return data.user
 }
 
+async function findUserByEmail(admin: ReturnType<typeof createClient>, email: string): Promise<User | null> {
+  const wantedEmail = email.trim().toLowerCase()
+  const perPage = 1000
+
+  for (let page = 1; page <= 100; page += 1) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage })
+    if (error) throw new Error('Could not verify the account.')
+    const match = data.users.find((user) => user.email?.toLowerCase() === wantedEmail)
+    if (match) return match
+    if (data.users.length < perPage) break
+  }
+
+  return null
+}
+
+function isUuid(value: unknown): value is string {
+  return typeof value === 'string'
+    && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
+function validEmail(value: unknown): value is string {
+  return typeof value === 'string'
+    && value.length <= 254
+    && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
 Deno.serve(async (request: Request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405)
@@ -78,6 +104,13 @@ Deno.serve(async (request: Request) => {
       perPage?: number
       userId?: string
       role?: string
+      slug?: string
+      name?: string
+      introductionFr?: string
+      introductionEn?: string
+      presidentEmail?: string
+      associationId?: string
+      memberEmail?: string
     }
     const action = body.action
     const admin = createClient(url, serviceKey, {
@@ -121,6 +154,95 @@ Deno.serve(async (request: Request) => {
       })
       if (error) return json({ error: 'Could not update this account role.' }, 500)
       return json({ ok: true, userId: target.id, role: body.role })
+    }
+
+    if (action === 'create-workspace') {
+      const slug = typeof body.slug === 'string' ? body.slug.trim().toLowerCase() : ''
+      const name = typeof body.name === 'string' ? body.name.trim() : ''
+      const introductionFr = typeof body.introductionFr === 'string' ? body.introductionFr.trim() : ''
+      const introductionEn = typeof body.introductionEn === 'string' ? body.introductionEn.trim() : ''
+      if (!/^([a-z0-9]+-)*[a-z0-9]+$/.test(slug)
+        || name.length < 1 || name.length > 120
+        || introductionFr.length < 1 || introductionFr.length > 4000
+        || introductionEn.length < 1 || introductionEn.length > 4000
+        || !validEmail(body.presidentEmail)) {
+        return json({ error: 'Complete the required workspace fields.' }, 400)
+      }
+
+      let president: User
+      const foundPresident = await findUserByEmail(admin, body.presidentEmail)
+      if (!foundPresident) return json({ error: 'The president account was not found.', code: 'account_not_found' }, 404)
+      president = foundPresident
+      if (!president.email_confirmed_at) {
+        return json({ error: 'The president account must confirm its email first.', code: 'account_not_confirmed' }, 409)
+      }
+
+      const { data, error } = await admin.rpc('create_association_workspace', {
+        p_slug: slug,
+        p_name: name,
+        p_introduction_fr: introductionFr,
+        p_introduction_en: introductionEn,
+        p_president_user_id: president.id,
+        p_assigned_by: caller.id,
+      })
+      if (error) {
+        if (error.code === '23505') return json({ error: 'That association address is already in use.', code: 'workspace_exists' }, 409)
+        return json({ error: 'Could not create the association workspace.', code: 'workspace_create_failed' }, 500)
+      }
+      return json({ ok: true, associationId: data })
+    }
+
+    if (action === 'set-president') {
+      if (!isUuid(body.associationId) || !validEmail(body.presidentEmail)) {
+        return json({ error: 'Choose a workspace and a valid account.' }, 400)
+      }
+
+      let president: User
+      const foundPresident = await findUserByEmail(admin, body.presidentEmail)
+      if (!foundPresident) return json({ error: 'The president account was not found.', code: 'account_not_found' }, 404)
+      president = foundPresident
+      if (!president.email_confirmed_at) {
+        return json({ error: 'The president account must confirm its email first.', code: 'account_not_confirmed' }, 409)
+      }
+
+      const { error } = await admin.rpc('set_association_president', {
+        p_association_id: body.associationId,
+        p_president_user_id: president.id,
+        p_assigned_by: caller.id,
+      })
+      if (error) {
+        if (error.code === '23503') return json({ error: 'The association or account was not found.', code: 'workspace_or_account_not_found' }, 404)
+        return json({ error: 'Could not assign the association president.', code: 'president_assignment_failed' }, 500)
+      }
+      return json({ ok: true, associationId: body.associationId })
+    }
+
+    if (action === 'end-membership') {
+      if (!isUuid(body.associationId) || !validEmail(body.memberEmail)) {
+        return json({ error: 'Choose a workspace and a valid account.' }, 400)
+      }
+
+      const member = await findUserByEmail(admin, body.memberEmail)
+      if (!member) return json({ error: 'The member account was not found.', code: 'account_not_found' }, 404)
+      const { data: membership, error: membershipError } = await admin
+        .from('association_memberships')
+        .select('id,permission_role,status')
+        .eq('association_id', body.associationId)
+        .eq('user_id', member.id)
+        .maybeSingle()
+      if (membershipError) return json({ error: 'Could not verify workspace membership.', code: 'membership_check_failed' }, 500)
+      if (!membership) return json({ error: 'The account is not a member of this workspace.', code: 'membership_not_found' }, 404)
+      if (membership.permission_role === 'president') {
+        return json({ error: 'Assign a new president before removing this access.', code: 'president_transfer_required' }, 409)
+      }
+      if (membership.status === 'ended') return json({ ok: true })
+
+      const { error } = await admin
+        .from('association_memberships')
+        .update({ status: 'ended' })
+        .eq('id', membership.id)
+      if (error) return json({ error: 'Could not remove workspace access.', code: 'membership_remove_failed' }, 500)
+      return json({ ok: true })
     }
 
     return json({ error: 'Unknown action.' }, 400)
