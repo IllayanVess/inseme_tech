@@ -1,8 +1,8 @@
-# pstb-tech
+# Inseme Tech
 
 ## Decription
 
-PSTB Tech is the PSTB student association for technology and innovation. It makes student life a practical extension of academic learning through hands-on projects and workshops, student events, and professional connections. Its mission is to build a lasting community that shares knowledge across cohorts and connects theory with real-world applications.
+Inseme Tech is the PST&B student association for technology and innovation. It makes student life a practical extension of academic learning through hands-on projects and workshops, student events, and professional connections. Its mission is to build a lasting community that shares knowledge across cohorts and connects theory with real-world applications.
 
 ## Hosting and data
 
