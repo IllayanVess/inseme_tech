@@ -261,6 +261,8 @@ export function initializeAccountPage() {
   const associationCreateForm = root.querySelector('[data-association-create-form]')
   const userList = root.querySelector('[data-user-list]')
   const loadMoreButton = root.querySelector('[data-load-more]')
+  const bootstrapButton = root.querySelector('[data-bootstrap-admin]')
+  const bootstrapHelp = root.querySelector('[data-bootstrap-help]')
   const workspaceEditor = initializeWorkspaceEditor({
     accountRoot: root,
     onAssociationCreated: async () => {
