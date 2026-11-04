@@ -134,7 +134,7 @@ export async function getMyActiveAssociationMemberships() {
 
   const { data, error } = await supabase
     .from('association_memberships')
-    .select('id,association_id,permission_role,created_at,association:associations!inner(id,slug,name,introduction_fr,introduction_en,mission_fr,mission_en,logo_path,logo_alt_fr,logo_alt_en,cover_path,cover_alt_fr,cover_alt_en,public_email,public_phone,website_url,theme_accent,visibility,published_at)')
+    .select('id,association_id,permission_role,created_at,association:associations!inner(id,slug,name,introduction_fr,introduction_en,mission_fr,mission_en,public_email,public_phone,website_url,theme_accent,visibility,published_at)')
     .eq('user_id', userId)
     .eq('status', 'active')
     .order('created_at', { ascending: true })
@@ -144,186 +144,158 @@ export async function getMyActiveAssociationMemberships() {
   return data || []
 }
 
-export async function getWorkspaceAssociations() {
-  if (!supabase) return null
+export async function updateAssociationPage(associationId, values) {
+  if (!supabase) throw new Error('Supabase is not configured.')
 
-  const { data, error } = await supabase
-    .from('associations')
-    .select('id,slug,name,visibility,published_at')
-    .order('name', { ascending: true })
-    .limit(100)
-
-  if (error) throw error
-  return data || []
-}
-
-export async function getWorkspaceEditorData(associationId) {
-  if (!supabase) return null
-
-  const [associationResult, sectionsResult, linksResult, positionsResult, profilesResult, assignmentsResult] = await Promise.all([
-    supabase
-      .from('associations')
-      .select('id,slug,name,introduction_fr,introduction_en,mission_fr,mission_en,logo_path,logo_alt_fr,logo_alt_en,cover_path,cover_alt_fr,cover_alt_en,theme_accent,public_email,public_phone,website_url,visibility,published_at')
-      .eq('id', associationId)
-      .single(),
-    supabase
-      .from('association_page_sections')
-      .select('id,section_type,section_key,content_fr,content_en,display_order,publication_status,published_at')
-      .eq('association_id', associationId)
-      .order('display_order', { ascending: true })
-      .limit(30),
-    supabase
-      .from('association_social_links')
-      .select('id,platform,url,label_fr,label_en,display_order,publication_status')
-      .eq('association_id', associationId)
-      .order('display_order', { ascending: true })
-      .limit(20),
-    supabase
-      .from('association_positions')
-      .select('id,slug,title_fr,title_en,responsibility_fr,responsibility_en,tasks_fr,tasks_en,display_order,is_active')
-      .eq('association_id', associationId)
-      .order('display_order', { ascending: true })
-      .limit(50),
-    supabase
-      .from('member_profiles')
-      .select('id,display_name,slug')
-      .eq('association_id', associationId)
-      .eq('is_public', true)
-      .order('display_name', { ascending: true })
-      .limit(100),
-    supabase
-      .from('member_position_assignments')
-      .select('id,position_id,member_profile_id,display_order,ends_at')
-      .eq('association_id', associationId)
-      .is('ends_at', null)
-      .order('display_order', { ascending: true })
-      .limit(100),
-  ])
-
-  for (const result of [associationResult, sectionsResult, linksResult, positionsResult, profilesResult, assignmentsResult]) {
-    if (result.error) throw result.error
-  }
-
-  const signedAsset = async (path) => {
-    if (!path) return null
-    const { data, error } = await supabase.storage
-      .from('association-media')
-      .createSignedUrl(path, 3600)
-    if (error) throw error
-    return data.signedUrl
-  }
-  const [logoUrl, coverUrl] = await Promise.all([
-    signedAsset(associationResult.data.logo_path),
-    signedAsset(associationResult.data.cover_path),
-  ])
-
-  return {
-    association: { ...associationResult.data, logo_url: logoUrl, cover_url: coverUrl },
-    sections: sectionsResult.data || [],
-    socialLinks: linksResult.data || [],
-    positions: positionsResult.data || [],
-    profiles: profilesResult.data || [],
-    assignments: assignmentsResult.data || [],
-  }
-}
-
-export async function saveAssociationProfile(associationId, values) {
   const { data, error } = await supabase
     .from('associations')
     .update(values)
     .eq('id', associationId)
     .select('id')
-    .single()
+    .maybeSingle()
 
   if (error) throw error
+  if (!data) throw new Error('Association page was not updated.')
   return data
 }
 
-export async function saveAssociationSocialLink(associationId, link) {
-  const { id, ...values } = link
-  const query = id
-    ? supabase.from('association_social_links').update(values).eq('id', id).eq('association_id', associationId)
-    : supabase.from('association_social_links').insert({ ...values, association_id: associationId })
-  const { data, error } = await query.select('id').single()
-  if (error) throw error
-  return data
-}
+export async function getAssociationEvents(associationId) {
+  if (!supabase) throw new Error('Supabase is not configured.')
 
-export async function deleteAssociationSocialLink(associationId, id) {
-  const { error } = await supabase
-    .from('association_social_links')
-    .delete()
-    .eq('id', id)
-    .eq('association_id', associationId)
-  if (error) throw error
-}
-
-export async function saveAssociationSection(associationId, section) {
   const { data, error } = await supabase
-    .from('association_page_sections')
-    .upsert({ ...section, association_id: associationId }, { onConflict: 'association_id,section_key' })
+    .from('events')
+    .select('id,association_id,slug,category,title_fr,title_en,summary_fr,summary_en,description_fr,description_en,location_fr,location_en,starts_at,ends_at,timezone_name,event_status,registration_deadline,registration_capacity,publication_status,published_at')
+    .eq('association_id', associationId)
+    .order('starts_at', { ascending: true })
+    .limit(100)
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function createAssociationEvent(associationId, values) {
+  if (!supabase) throw new Error('Supabase is not configured.')
+
+  const { data, error } = await supabase
+    .from('events')
+    .insert({ association_id: associationId, ...values })
     .select('id')
     .single()
+
   if (error) throw error
   return data
 }
 
-export async function deleteAssociationSection(associationId, id) {
-  const { error } = await supabase
-    .from('association_page_sections')
-    .delete()
-    .eq('id', id)
-    .eq('association_id', associationId)
-  if (error) throw error
-}
+export async function updateAssociationEvent(associationId, eventId, values) {
+  if (!supabase) throw new Error('Supabase is not configured.')
 
-export async function saveAssociationPosition(associationId, position) {
-  const { id, ...values } = position
-  const query = id
-    ? supabase.from('association_positions').update(values).eq('id', id).eq('association_id', associationId)
-    : supabase.from('association_positions').insert({ ...values, association_id: associationId })
-  const { data, error } = await query.select('id').single()
-  if (error) throw error
-  return data
-}
-
-export async function assignMemberPosition(associationId, positionId, profileId) {
   const { data, error } = await supabase
-    .from('member_position_assignments')
-    .insert({
-      association_id: associationId,
-      position_id: positionId,
-      member_profile_id: profileId,
-      display_order: 0,
-    })
+    .from('events')
+    .update(values)
+    .eq('association_id', associationId)
+    .eq('id', eventId)
     .select('id')
-    .single()
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) throw new Error('Event was not updated.')
+  return data
+}
+
+export async function getMyMemberProfiles() {
+  if (!supabase) return null
+
+  const { data: sessionResult, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError) throw sessionError
+  const userId = sessionResult.session?.user?.id
+  if (!userId) return []
+
+  const { data: memberships, error: membershipError } = await supabase
+    .from('association_memberships')
+    .select('id,association_id,association:associations!inner(slug,name)')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .limit(50)
+
+  if (membershipError) throw membershipError
+  if (!memberships?.length) return []
+
+  const { data: profiles, error: profileError } = await supabase
+    .from('member_profiles')
+    .select('id,association_id,membership_id,slug,display_name,bio_fr,bio_en,is_public,consented_at')
+    .in('membership_id', memberships.map((membership) => membership.id))
+    .limit(50)
+
+  if (profileError) throw profileError
+  const membershipsById = new Map(memberships.map((membership) => [membership.id, membership]))
+  return (profiles ?? []).map((profile) => ({
+    ...profile,
+    association: membershipsById.get(profile.membership_id)?.association,
+  }))
+}
+
+export async function updateMyMemberProfile(profileId, values) {
+  if (!supabase) throw new Error('Supabase is not configured.')
+
+  const { data, error } = await supabase
+    .from('member_profiles')
+    .update(values)
+    .eq('id', profileId)
+    .select('id')
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) throw new Error('Member profile was not updated.')
+  return data
+}
+
+async function getPublishedAssociation(slug, now) {
+  if (!supabase) return null
+  const { data, error } = await supabase
+    .from('associations')
+    .select('id,slug,name,introduction_fr,introduction_en,mission_fr,mission_en,visibility,published_at')
+    .eq('slug', slug)
+    .eq('visibility', 'published')
+    .not('published_at', 'is', null)
+    .lte('published_at', now)
+    .maybeSingle()
+
   if (error) throw error
   return data
 }
 
-export async function endMemberPosition(associationId, assignmentId) {
-  const { error } = await supabase
-    .from('member_position_assignments')
-    .update({ ends_at: new Date().toISOString().slice(0, 10) })
-    .eq('association_id', associationId)
-    .eq('id', assignmentId)
-    .is('ends_at', null)
+export async function getPublishedAssociationMembers(associationSlug, now = new Date().toISOString()) {
+  const association = await getPublishedAssociation(associationSlug, now)
+  if (!association) return { association: null, members: [] }
+
+  const { data, error } = await supabase
+    .from('member_profiles')
+    .select('slug,display_name,bio_fr,bio_en')
+    .eq('association_id', association.id)
+    .eq('is_public', true)
+    .not('consented_at', 'is', null)
+    .lte('consented_at', now)
+    .order('display_name', { ascending: true })
+    .limit(100)
+
   if (error) throw error
+  return { association, members: data ?? [] }
 }
 
-export async function uploadAssociationMedia(associationId, file) {
-  const extension = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1]
-  const path = `${associationId}/identity/${crypto.randomUUID()}.${extension}`
-  const { error } = await supabase.storage
-    .from('association-media')
-    .upload(path, file, { cacheControl: '3600', contentType: file.type, upsert: false })
-  if (error) throw error
-  return path
-}
+export async function getPublishedMemberProfile(associationSlug, memberSlug, now = new Date().toISOString()) {
+  const association = await getPublishedAssociation(associationSlug, now)
+  if (!association) return { association: null, member: null }
 
-export async function removeAssociationMedia(path) {
-  if (!path) return
-  const { error } = await supabase.storage.from('association-media').remove([path])
+  const { data, error } = await supabase
+    .from('member_profiles')
+    .select('slug,display_name,bio_fr,bio_en')
+    .eq('association_id', association.id)
+    .eq('slug', memberSlug)
+    .eq('is_public', true)
+    .not('consented_at', 'is', null)
+    .lte('consented_at', now)
+    .maybeSingle()
+
   if (error) throw error
+  return { association, member: data }
 }

@@ -604,141 +604,68 @@ CREATE TRIGGER event_links_set_updated_at BEFORE UPDATE ON public.event_links
 CREATE TRIGGER event_people_set_updated_at BEFORE UPDATE ON public.event_people
   FOR EACH ROW EXECUTE FUNCTION private.set_updated_at();
 
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-  'association-media',
-  'association-media',
-  false,
-  5242880,
-  ARRAY['image/jpeg', 'image/png', 'image/webp']
-)
-ON CONFLICT (id) DO UPDATE
-SET public = EXCLUDED.public,
-    file_size_limit = EXCLUDED.file_size_limit,
-    allowed_mime_types = EXCLUDED.allowed_mime_types;
-
-CREATE POLICY association_media_read ON storage.objects
-  FOR SELECT TO anon, authenticated USING (
-    bucket_id = 'association-media'
-    AND (
-      EXISTS (
-        SELECT 1 FROM public.associations AS association
-        WHERE association.visibility = 'published'
-          AND association.published_at IS NOT NULL
-          AND association.published_at <= now()
-          AND (association.logo_path = name OR association.cover_path = name)
-      )
-      OR CASE
-        WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-        THEN private.is_platform_admin()
-          OR private.has_association_role(
-            (storage.foldername(name))[1]::uuid,
-            ARRAY['president']::text[]
-          )
-        ELSE false
-      END
-    )
-  );
-CREATE POLICY association_media_upload ON storage.objects
-  FOR INSERT TO authenticated WITH CHECK (
-    bucket_id = 'association-media'
-    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-    AND (
-      private.is_platform_admin()
-      OR private.has_association_role(
-        (storage.foldername(name))[1]::uuid,
-        ARRAY['president']::text[]
-      )
-    )
-  );
-CREATE POLICY association_media_update ON storage.objects
-  FOR UPDATE TO authenticated
-  USING (
-    bucket_id = 'association-media'
-    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-    AND (
-      private.is_platform_admin()
-      OR private.has_association_role(
-        (storage.foldername(name))[1]::uuid,
-        ARRAY['president']::text[]
-      )
-    )
-  )
-  WITH CHECK (
-    bucket_id = 'association-media'
-    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-    AND (
-      private.is_platform_admin()
-      OR private.has_association_role(
-        (storage.foldername(name))[1]::uuid,
-        ARRAY['president']::text[]
-      )
-    )
-  );
-CREATE POLICY association_media_delete ON storage.objects
-  FOR DELETE TO authenticated USING (
-    bucket_id = 'association-media'
-    AND (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-    AND (
-      private.is_platform_admin()
-      OR private.has_association_role(
-        (storage.foldername(name))[1]::uuid,
-        ARRAY['president']::text[]
-      )
-    )
-  );
-
-CREATE FUNCTION public.create_association_workspace(
+-- These transaction-safe operations are called only by the authenticated
+-- administrator Edge Function using its server-side service credential.
+CREATE OR REPLACE FUNCTION public.admin_create_association(
   p_slug text,
   p_name text,
   p_introduction_fr text,
   p_introduction_en text,
-  p_president_user_id uuid,
-  p_assigned_by uuid
+  p_mission_fr text,
+  p_mission_en text,
+  p_public_email text,
+  p_assigned_by uuid,
+  p_president_user_id uuid
 )
 RETURNS uuid
 LANGUAGE plpgsql
-SECURITY INVOKER
+SECURITY DEFINER
 SET search_path = ''
 AS $$
 DECLARE
-  new_association_id uuid;
+  created_association_id uuid;
 BEGIN
-  IF auth.jwt() ->> 'role' IS DISTINCT FROM 'service_role' THEN
-    RAISE EXCEPTION 'Service role required' USING ERRCODE = '42501';
+  IF (auth.jwt() ->> 'role') IS DISTINCT FROM 'service_role' THEN
+    RAISE EXCEPTION 'This operation is restricted to the administration service.'
+      USING ERRCODE = '42501';
   END IF;
 
-  INSERT INTO public.associations (slug, name, introduction_fr, introduction_en)
-  VALUES (
-    lower(btrim(p_slug)),
-    btrim(p_name),
-    nullif(btrim(p_introduction_fr), ''),
-    nullif(btrim(p_introduction_en), '')
+  INSERT INTO public.associations (
+    slug, name, introduction_fr, introduction_en, mission_fr, mission_en,
+    public_email
   )
-  RETURNING id INTO new_association_id;
+  VALUES (
+    p_slug, p_name, p_introduction_fr, p_introduction_en, p_mission_fr,
+    p_mission_en, p_public_email
+  )
+  RETURNING id INTO created_association_id;
 
   INSERT INTO public.association_memberships (
     association_id, user_id, permission_role, status, assigned_by
   )
-  VALUES (new_association_id, p_president_user_id, 'president', 'active', p_assigned_by);
+  VALUES (
+    created_association_id, p_president_user_id, 'president', 'active',
+    p_assigned_by
+  );
 
-  RETURN new_association_id;
+  RETURN created_association_id;
 END;
 $$;
 
-CREATE FUNCTION public.set_association_president(
+CREATE OR REPLACE FUNCTION public.admin_set_association_president(
   p_association_id uuid,
   p_president_user_id uuid,
   p_assigned_by uuid
 )
 RETURNS void
 LANGUAGE plpgsql
-SECURITY INVOKER
+SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-  IF auth.jwt() ->> 'role' IS DISTINCT FROM 'service_role' THEN
-    RAISE EXCEPTION 'Service role required' USING ERRCODE = '42501';
+  IF (auth.jwt() ->> 'role') IS DISTINCT FROM 'service_role' THEN
+    RAISE EXCEPTION 'This operation is restricted to the administration service.'
+      USING ERRCODE = '42501';
   END IF;
 
   UPDATE public.association_memberships
@@ -751,7 +678,10 @@ BEGIN
   INSERT INTO public.association_memberships (
     association_id, user_id, permission_role, status, assigned_by
   )
-  VALUES (p_association_id, p_president_user_id, 'president', 'active', p_assigned_by)
+  VALUES (
+    p_association_id, p_president_user_id, 'president', 'active',
+    p_assigned_by
+  )
   ON CONFLICT (association_id, user_id) DO UPDATE
   SET permission_role = 'president',
       status = 'active',
@@ -759,11 +689,65 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.create_association_workspace(text, text, text, text, uuid, uuid)
-  FROM PUBLIC, anon, authenticated, service_role;
-REVOKE ALL ON FUNCTION public.set_association_president(uuid, uuid, uuid)
-  FROM PUBLIC, anon, authenticated, service_role;
-GRANT EXECUTE ON FUNCTION public.create_association_workspace(text, text, text, text, uuid, uuid)
+REVOKE ALL ON FUNCTION public.admin_create_association(
+  text, text, text, text, text, text, text, uuid, uuid
+) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.admin_set_association_president(uuid, uuid, uuid)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_create_association(
+  text, text, text, text, text, text, text, uuid, uuid
+) TO service_role;
+GRANT EXECUTE ON FUNCTION public.admin_set_association_president(uuid, uuid, uuid)
   TO service_role;
-GRANT EXECUTE ON FUNCTION public.set_association_president(uuid, uuid, uuid)
+
+CREATE OR REPLACE FUNCTION public.admin_add_association_member(
+  p_association_id uuid,
+  p_member_user_id uuid,
+  p_assigned_by uuid,
+  p_profile_slug text,
+  p_display_name text
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  created_membership_id uuid;
+BEGIN
+  IF (auth.jwt() ->> 'role') IS DISTINCT FROM 'service_role' THEN
+    RAISE EXCEPTION 'This operation is restricted to the membership service.'
+      USING ERRCODE = '42501';
+  END IF;
+
+  INSERT INTO public.association_memberships (
+    association_id, user_id, permission_role, status, assigned_by
+  )
+  VALUES (
+    p_association_id, p_member_user_id, 'member', 'active', p_assigned_by
+  )
+  ON CONFLICT (association_id, user_id) DO UPDATE
+  SET permission_role = CASE
+        WHEN public.association_memberships.permission_role = 'president' THEN 'president'
+        ELSE 'member'
+      END,
+      status = 'active',
+      assigned_by = EXCLUDED.assigned_by
+  RETURNING id INTO created_membership_id;
+
+  INSERT INTO public.member_profiles (
+    association_id, membership_id, slug, display_name
+  )
+  VALUES (
+    p_association_id, created_membership_id, p_profile_slug, p_display_name
+  )
+  ON CONFLICT (association_id, membership_id) DO NOTHING;
+
+  RETURN created_membership_id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_add_association_member(uuid, uuid, uuid, text, text)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_add_association_member(uuid, uuid, uuid, text, text)
   TO service_role;

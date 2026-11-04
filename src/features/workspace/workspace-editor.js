@@ -11,7 +11,7 @@ import {
   saveAssociationSection,
   saveAssociationSocialLink,
   uploadAssociationMedia,
-} from '../../services/association-content.js'
+} from '../../services/association-workspace.js'
 import { callAccountAdministration } from '../../services/account.js'
 
 const english = document.documentElement.lang === 'en'
@@ -178,7 +178,7 @@ function scrollToForm(form) {
   form.scrollIntoView({ behavior, block: 'center' })
 }
 
-export function initializeWorkspaceEditor({ accountRoot }) {
+export function initializeWorkspaceEditor({ accountRoot, onAssociationCreated }) {
   const editor = $(accountRoot, '[data-workspace-editor]')
   const adminTools = $(accountRoot, '[data-admin-workspace-tools]')
   if (!editor) return { setContext: () => {} }
@@ -761,6 +761,7 @@ export function initializeWorkspaceEditor({ accountRoot }) {
         createForm.reset()
         try {
           setWorkspaceOptions(await loadAdminAssociationOptions())
+          await onAssociationCreated?.()
         } catch (error) {
           console.error('Workspace admin list refresh failed:', error)
           setMessage(adminStatus, copy.adminError, true)

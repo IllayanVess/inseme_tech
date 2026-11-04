@@ -157,7 +157,11 @@ CREATE TABLE public.member_profiles (
   UNIQUE (association_id, id),
   UNIQUE (association_id, membership_id),
   UNIQUE (association_id, slug),
-  CHECK (NOT is_public OR consented_at IS NOT NULL)
+  CHECK (NOT is_public OR consented_at IS NOT NULL),
+  CONSTRAINT member_profiles_bio_bilingual CHECK (
+    (bio_fr IS NULL AND bio_en IS NULL)
+    OR (nullif(btrim(bio_fr), '') IS NOT NULL AND nullif(btrim(bio_en), '') IS NOT NULL)
+  )
 );
 CREATE INDEX member_profiles_public_idx
   ON public.member_profiles (association_id, slug)

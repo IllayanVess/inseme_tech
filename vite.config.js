@@ -3,8 +3,8 @@ const associationRouteShell = {
   configureServer(server) {
     server.middlewares.use((request, _response, next) => {
       const pathname = new URL(request.url, 'http://vite.local').pathname
-      const frenchRoute = /^\/associations\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/
-      const englishRoute = /^\/en\/associations\/[a-z0-9]+(?:-[a-z0-9]+)*\/?$/
+      const frenchRoute = /^\/associations\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/members(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?)?\/?$/
+      const englishRoute = /^\/en\/associations\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/members(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?)?\/?$/
 
       if (frenchRoute.test(pathname)) request.url = `/associations/index.html${new URL(request.url, 'http://vite.local').search}`
       if (englishRoute.test(pathname)) request.url = `/en/associations/index.html${new URL(request.url, 'http://vite.local').search}`

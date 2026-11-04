@@ -38,9 +38,10 @@ Use a stable association slug as the first path segment after the locale prefix.
 - Event: `/associations/<association_slug>/events/<event_slug>/` and `/en/associations/<association_slug>/events/<event_slug>/`
 - Project: `/associations/<association_slug>/projects/<project_slug>/` and `/en/associations/<association_slug>/projects/<project_slug>/`
 - Announcement: `/associations/<association_slug>/announcements/<announcement_slug>/` and `/en/associations/<association_slug>/announcements/<announcement_slug>/`
+- Member directory: `/associations/<association_slug>/members/` and `/en/associations/<association_slug>/members/`
 - Member: `/associations/<association_slug>/members/<member_slug>/` and `/en/associations/<association_slug>/members/<member_slug>/`
 
-Resolve records using `(association_id, slug)` after resolving the association slug. Do not use query-string routes or user-supplied HTML. The route shells, Netlify rewrites, language switch, and not-found handling still need implementation in the Vite multi-page site.
+Resolve records using `(association_id, slug)` after resolving the association slug. Do not use query-string routes or user-supplied HTML. Member directory and profile routes reuse the bilingual association route shell and Netlify rewrites. Public directory queries include only profiles that are actively consented and owned by active members of a published association.
 
 ## Public and private query paths
 
@@ -52,7 +53,7 @@ Keep these as bounded queries in `src/services/`, with explicit column selection
 | Association page | Resolve `associations` by unique `slug` and published visibility. Fetch published `association_page_sections` and `association_social_links` by that `association_id`, ordered by `display_order`. Fetch published projects/announcements and upcoming or past events with the same tenant filter. |
 | Event detail | Resolve event by `(association_id, slug)` or ID after association resolution. Fetch approved `event_media`, public `event_links`, and consented `event_people` by both `association_id` and `event_id`. Fetch its linked event-report announcement by ID only when it is published. |
 | Member page | Fetch a public profile by `(association_id, slug)` only when the association is published and the profile has current consent and an active membership. Fetch public, separately consented social links and active display-position assignments for that profile. Never select membership `user_id`, login email, status, or private submission data. |
-| President workspace | Resolve the signed-in user's active membership, then scope every workspace read/write by its `association_id`. RLS independently checks the president role and tenant. Do not let the browser choose authorization based on a role title or client-side state. |
+| President workspace | Resolve the signed-in user's active membership, then scope every workspace read/write by its `association_id`. Event management selects, inserts, and updates events with that association ID; RLS independently checks the president role and tenant. Do not let the browser choose authorization based on a role title or client-side state. |
 
 Private registrations, attendance, applications, and private contact fields are deferred. If introduced, keep them in separate tables and access them through a narrowly scoped trusted server workflow; do not add them to public page queries.
 

@@ -41,11 +41,44 @@
             <h3 id="account-workspaces-title">Mes associations</h3>
             <div class="account-workspace-list" data-workspace-list aria-live="polite"></div>
           </section>
+          <section class="account-workspaces" data-member-profiles aria-label="Modifier mes profils de membre"></section>
+          <form class="account-password-form" data-password-form>
+            <label for="account-new-password">Définir ou modifier le mot de passe</label>
+            <input id="account-new-password" name="password" type="password" autocomplete="new-password" minlength="10" required />
+            <button class="button button-dark account-submit" type="submit">Enregistrer le mot de passe</button>
+          </form>
+          <section class="account-workspaces" data-association-editors aria-label="Modifier mes pages d’association"></section>
           <button class="button button-dark account-submit" data-signout type="button">Se déconnecter</button>
         </section>
         <section class="account-card account-admin" data-admin-panel hidden aria-labelledby="admin-title">
           <h2 id="admin-title">Administration des rôles</h2>
           <p>Attribuez ou retirez le rôle administrateur des comptes PSTB Tech.</p>
+          <button class="button button-dark account-submit" data-bootstrap-admin type="button" hidden>Activer mon premier compte administrateur</button>
+          <p data-bootstrap-help hidden>La configuration initiale doit être activée sur le serveur Supabase.</p>
+          <section class="account-workspaces" aria-labelledby="association-admin-title">
+            <h3 id="association-admin-title">Associations et présidences</h3>
+            <form class="association-create-form" data-association-create-form>
+              <label for="association-slug">Adresse de la page (slug)</label>
+              <input id="association-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required />
+              <label for="association-name">Nom de l’association</label>
+              <input id="association-name" name="name" maxlength="120" required />
+              <label for="association-president-email">E-mail du compte président confirmé</label>
+              <input id="association-president-email" name="presidentEmail" type="email" autocomplete="email" required />
+              <label for="association-intro-fr">Présentation — français</label>
+              <textarea id="association-intro-fr" name="introductionFr" maxlength="2000" rows="3" required></textarea>
+              <label for="association-intro-en">Introduction — English</label>
+              <textarea id="association-intro-en" name="introductionEn" maxlength="2000" rows="3" required></textarea>
+              <label for="association-mission-fr">Mission — français (facultatif)</label>
+              <textarea id="association-mission-fr" name="missionFr" maxlength="2000" rows="3"></textarea>
+              <label for="association-mission-en">Mission — English (optional)</label>
+              <textarea id="association-mission-en" name="missionEn" maxlength="2000" rows="3"></textarea>
+              <label for="association-public-email">E-mail public (facultatif)</label>
+              <input id="association-public-email" name="publicEmail" type="email" autocomplete="email" />
+              <button class="button button-dark account-submit" type="submit">Créer l’association</button>
+            </form>
+            <p class="account-hint">Créez d’abord le compte dans Supabase Auth et confirmez son adresse e-mail. Une seule personne peut être présidente active par association.</p>
+            <div class="account-association-list" data-association-list aria-live="polite"></div>
+          </section>
           <div class="account-user-list" data-user-list></div>
           <button class="account-load-more" data-load-more type="button" hidden>Charger plus de comptes</button>
         </section>

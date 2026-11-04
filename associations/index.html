@@ -38,25 +38,44 @@
       </section>
 
       <div class="association-content" data-association-content hidden>
-        <section class="association-section wrap" data-association-mission-section hidden aria-labelledby="association-mission-heading">
-          <p class="eyebrow">L’ASSOCIATION</p>
-          <h2 id="association-mission-heading">Notre mission</h2>
-          <div data-association-mission></div>
+        <div data-association-overview>
+          <section class="association-section wrap" data-association-mission-section hidden aria-labelledby="association-mission-heading">
+            <p class="eyebrow">L’ASSOCIATION</p>
+            <h2 id="association-mission-heading">Notre mission</h2>
+            <div data-association-mission></div>
+          </section>
+          <section class="association-section wrap" aria-labelledby="association-events-heading">
+            <p class="eyebrow">RENCONTRES · PROJETS · ATELIERS</p>
+            <h2 id="association-events-heading">Événements à venir</h2>
+            <div class="association-event-list" data-association-events></div>
+          </section>
+          <section class="association-section wrap" aria-labelledby="association-members-heading">
+            <p class="eyebrow">LA COMMUNAUTÉ</p>
+            <h2 id="association-members-heading">Nos membres</h2>
+            <a class="association-members-link" data-member-directory-link href="/associations/">Découvrir les membres <span aria-hidden="true">↗</span></a>
+          </section>
+          <section class="association-section wrap" data-association-links-section hidden aria-labelledby="association-links-heading">
+            <p class="eyebrow">RESTER EN LIEN</p>
+            <h2 id="association-links-heading">Suivre et en savoir plus</h2>
+            <div class="association-link-list" data-association-links></div>
+          </section>
+          <section class="association-section wrap" data-association-contact-section hidden aria-labelledby="association-contact-heading">
+            <p class="eyebrow">NOUS CONTACTER</p>
+            <h2 id="association-contact-heading">Contact</h2>
+            <div class="association-contact-list" data-association-contact></div>
+          </section>
+        </div>
+        <section class="association-section wrap" data-member-directory-section hidden aria-labelledby="member-directory-heading">
+          <a class="member-back-link" data-member-back-link href="/associations/">Retour à l’association</a>
+          <p class="eyebrow">LA COMMUNAUTÉ</p>
+          <h2 id="member-directory-heading">Nos membres</h2>
+          <div class="association-member-list" data-member-list></div>
         </section>
-        <section class="association-section wrap" aria-labelledby="association-events-heading">
-          <p class="eyebrow">RENCONTRES · PROJETS · ATELIERS</p>
-          <h2 id="association-events-heading">Événements à venir</h2>
-          <div class="association-event-list" data-association-events></div>
-        </section>
-        <section class="association-section wrap" data-association-links-section hidden aria-labelledby="association-links-heading">
-          <p class="eyebrow">RESTER EN LIEN</p>
-          <h2 id="association-links-heading">Suivre et en savoir plus</h2>
-          <div class="association-link-list" data-association-links></div>
-        </section>
-        <section class="association-section wrap" data-association-contact-section hidden aria-labelledby="association-contact-heading">
-          <p class="eyebrow">NOUS CONTACTER</p>
-          <h2 id="association-contact-heading">Contact</h2>
-          <div class="association-contact-list" data-association-contact></div>
+        <section class="association-section wrap" data-member-profile-section hidden aria-labelledby="member-profile-heading">
+          <a class="member-back-link" data-member-back-link href="/associations/">Retour aux membres</a>
+          <p class="eyebrow">LA COMMUNAUTÉ</p>
+          <h2 id="member-profile-heading" data-member-name></h2>
+          <div data-member-bio></div>
         </section>
         <section class="association-section wrap" data-association-team-section hidden aria-labelledby="association-team-heading">
           <p class="eyebrow">ÉQUIPE · RESPONSABILITÉS</p>
