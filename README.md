@@ -23,7 +23,7 @@ The current migrations are incremental from the existing hosted schema; they are
 
 ## Source layout
 
-- `index.html`, `a-propos/`, `activites/`, `associations/`, and `en/` contain the directly addressable French and English routes.
+- `index.html`, `a-propos/`, `activites/`, `associations/`, `compte/`, and `en/` contain the directly addressable French and English routes. Account administration is split between `/compte/admin/associations/` and `/compte/admin/comptes/`, with equivalent English routes.
 - `src/main.js` is the browser entry point and initializes shared page features.
 - `src/features/` contains page behavior and DOM rendering.
 - `src/services/` contains Supabase data queries; `src/lib/` contains the Supabase client setup.
@@ -32,7 +32,7 @@ The current migrations are incremental from the existing hosted schema; they are
 
 ## Member accounts and roles
 
-- French and English account pages are available at `/compte/` and `/en/account/`.
+- French and English account pages are available at `/compte/` and `/en/account/`. Platform administrators manage associations at `/compte/admin/associations/` and account roles at `/compte/admin/comptes/`, with matching `/en/account/admin/` pages.
 - Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in local development and Netlify. Browser code must never receive a Supabase secret or service-role key.
 - Disable public user sign-ups in Supabase Auth so direct API sign-ups are blocked. Association presidents can invite a member from their workspace; the invite creates a Supabase Auth account when needed and automatically links the account to that association. Existing Supabase accounts can be added by email. Configure a production email sender (SMTP), set the server-side `SITE_URL` Edge Function secret to the deployed site origin, and add the deployed `/compte/` and `/en/account/` URLs to the Auth redirect allow list.
 - Deploy `supabase/functions/manage-users/` to the same verified Supabase project as the site. Keep JWT verification enabled.
@@ -41,7 +41,7 @@ The current migrations are incremental from the existing hosted schema; they are
 - Association presidents can edit and publish only their own association page from their account workspace. Supabase RLS enforces this boundary, so an association president cannot edit another association by changing browser data. Platform administrators can edit all association pages and can also be presidents of their own associations.
 - Presidents can create, edit, publish, unpublish, or archive events for their own association in the account workspace. Event reads and writes are scoped by association ID and enforced by Supabase RLS; platform administrators can manage events for any association.
 - Members can set a password after accepting an invitation and control whether their bilingual member profile is public. Profiles start private; only active members who explicitly consent appear in the association’s member directory and public member page. The directory uses `/associations/<slug>/members/` and `/associations/<slug>/members/<member>/`, with equivalent `/en/` routes.
-- Association creation and president assignment run through the authenticated Edge Function and service-role-only database transactions. Association page edits use the signed-in Supabase client and association-scoped RLS; both paths store data in Supabase.
+- Association creation and first-president assignment are a single atomic action through the authenticated Edge Function and service-role-only database transaction. After creation, the admin is taken to that association’s workspace editor. Later president transfers use the same association administration page. Association page edits use the signed-in Supabase client and association-scoped RLS; both paths store data in Supabase.
 - The function uses the Supabase Edge Function `SUPABASE_SERVICE_ROLE_KEY` only on the server. Never add it to Vite or a `VITE_` environment variable.
 
 ## Association workspaces

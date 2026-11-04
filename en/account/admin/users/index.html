@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Manage PSTB Tech account roles." />
+    <title>Account roles — PSTB Tech administration</title>
+  </head>
+  <body class="account-page">
+    <header class="site-header">
+      <a class="wordmark" href="/en/" aria-label="PSTB Tech, home"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a class="nav-link" href="/en/">Home</a><a class="nav-link" href="/en/about/">About us</a><a class="nav-link" href="/en/associations/">Associations</a><a class="nav-cta" href="/en/activities/">Activities <span aria-hidden="true">↗</span></a><a class="nav-link active" href="/en/account/" aria-current="page">My account</a>
+        <div class="language-switch" aria-label="Choose language"><a href="/compte/admin/comptes/" lang="fr">FR</a><span aria-hidden="true">/</span><a class="selected" href="/en/account/admin/users/" lang="en" aria-current="page">EN</a></div>
+      </nav>
+    </header>
+    <main class="account-main" data-admin-users-page>
+      <section class="account-shell wrap">
+        <p class="eyebrow">ADMINISTRATION</p>
+        <h1>Account roles</h1>
+        <p><a href="/en/account/">← Back to my account</a> · <a href="/en/account/admin/associations/">Manage associations</a></p>
+        <p class="account-status" data-admin-page-status role="status" aria-live="polite">Loading…</p>
+        <section class="account-card" data-admin-page-body hidden aria-labelledby="users-title">
+          <h2 id="users-title">PSTB Tech accounts</h2>
+          <p>Assign administrator or member roles. At least one administrator must remain active.</p>
+          <div class="account-user-list" data-admin-user-list></div>
+          <button class="account-load-more" data-admin-load-more type="button" hidden>Load more accounts</button>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

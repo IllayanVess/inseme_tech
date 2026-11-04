@@ -47,42 +47,19 @@
             <input id="account-new-password" name="password" type="password" autocomplete="new-password" minlength="10" required />
             <button class="button button-dark account-submit" type="submit">Enregistrer le mot de passe</button>
           </form>
-          <section class="account-workspaces" data-association-editors aria-label="Modifier mes pages d’association"></section>
+          <section class="account-workspaces" data-association-editors aria-label="Gérer les membres et les événements de mes associations"></section>
+          <nav class="account-card" data-admin-links hidden aria-label="Outils d’administration">
+            <h2>Administration</h2>
+            <p><a href="/compte/admin/associations/">Gérer les associations et présidences</a></p>
+            <p><a href="/compte/admin/comptes/">Gérer les rôles des comptes</a></p>
+          </nav>
+          <section class="account-workspaces" data-bootstrap-area hidden aria-labelledby="bootstrap-title">
+            <h3 id="bootstrap-title">Configuration initiale</h3>
+            <button class="button button-dark account-submit" data-bootstrap-admin type="button">Activer mon premier compte administrateur</button>
+          </section>
           <button class="button button-dark account-submit" data-signout type="button">Se déconnecter</button>
         </section>
-        <section class="account-card account-admin" data-admin-panel hidden aria-labelledby="admin-title">
-          <h2 id="admin-title">Administration des rôles</h2>
-          <p>Attribuez ou retirez le rôle administrateur des comptes PSTB Tech.</p>
-          <button class="button button-dark account-submit" data-bootstrap-admin type="button" hidden>Activer mon premier compte administrateur</button>
-          <p data-bootstrap-help hidden>La configuration initiale doit être activée sur le serveur Supabase.</p>
-          <section class="account-workspaces" aria-labelledby="association-admin-title">
-            <h3 id="association-admin-title">Associations et présidences</h3>
-            <form class="association-create-form" data-association-create-form>
-              <label for="association-slug">Adresse de la page (slug)</label>
-              <input id="association-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required />
-              <label for="association-name">Nom de l’association</label>
-              <input id="association-name" name="name" maxlength="120" required />
-              <label for="association-president-email">E-mail du compte président confirmé</label>
-              <input id="association-president-email" name="presidentEmail" type="email" autocomplete="email" required />
-              <label for="association-intro-fr">Présentation — français</label>
-              <textarea id="association-intro-fr" name="introductionFr" maxlength="2000" rows="3" required></textarea>
-              <label for="association-intro-en">Introduction — English</label>
-              <textarea id="association-intro-en" name="introductionEn" maxlength="2000" rows="3" required></textarea>
-              <label for="association-mission-fr">Mission — français (facultatif)</label>
-              <textarea id="association-mission-fr" name="missionFr" maxlength="2000" rows="3"></textarea>
-              <label for="association-mission-en">Mission — English (optional)</label>
-              <textarea id="association-mission-en" name="missionEn" maxlength="2000" rows="3"></textarea>
-              <label for="association-public-email">E-mail public (facultatif)</label>
-              <input id="association-public-email" name="publicEmail" type="email" autocomplete="email" />
-              <button class="button button-dark account-submit" type="submit">Créer l’association</button>
-            </form>
-            <p class="account-hint">Créez d’abord le compte dans Supabase Auth et confirmez son adresse e-mail. Une seule personne peut être présidente active par association.</p>
-            <div class="account-association-list" data-association-list aria-live="polite"></div>
-          </section>
-          <div class="account-user-list" data-user-list></div>
-          <button class="account-load-more" data-load-more type="button" hidden>Charger plus de comptes</button>
-        </section>
-        <section class="account-card workspace-editor" data-workspace-editor hidden aria-labelledby="workspace-editor-title">
+        <section class="account-card workspace-editor" data-workspace-editor id="workspace-editor" hidden aria-labelledby="workspace-editor-title">
           <p class="eyebrow">GESTION ASSOCIATIVE</p>
           <h2 id="workspace-editor-title">Modifier un espace</h2>
           <label for="workspace-select">Association</label>
@@ -230,40 +207,6 @@
               <div class="workspace-list" data-assignment-list></div>
             </section>
           </div>
-        </section>
-        <section class="account-card account-admin-workspaces" data-admin-workspace-tools hidden aria-labelledby="admin-workspace-title">
-          <h2 id="admin-workspace-title">Gestion des espaces associatifs</h2>
-          <p data-admin-workspace-status role="status" aria-live="polite"></p>
-          <form data-create-workspace-form class="workspace-form">
-            <h3>Créer un espace et désigner sa présidence</h3>
-            <label for="new-workspace-name">Nom de l’association</label>
-            <input id="new-workspace-name" name="name" maxlength="120" required />
-            <label for="new-workspace-slug">Adresse courte</label>
-            <input id="new-workspace-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" required />
-            <label for="new-workspace-intro-fr">Présentation — français</label>
-            <textarea id="new-workspace-intro-fr" name="introduction_fr" maxlength="4000" required></textarea>
-            <label for="new-workspace-intro-en">Introduction — English</label>
-            <textarea id="new-workspace-intro-en" name="introduction_en" maxlength="4000" required></textarea>
-            <label for="new-workspace-president">E-mail d’un compte confirmé</label>
-            <input id="new-workspace-president" name="president_email" type="email" maxlength="254" required />
-            <button class="button button-dark account-submit" type="submit">Créer l’espace</button>
-          </form>
-          <form data-transfer-president-form class="workspace-form">
-            <h3>Transférer la présidence</h3>
-            <label for="transfer-workspace">Association</label>
-            <select id="transfer-workspace" data-admin-association-select name="association_id" required></select>
-            <label for="transfer-president-email">E-mail d’un compte confirmé</label>
-            <input id="transfer-president-email" name="president_email" type="email" maxlength="254" required />
-            <button class="button button-dark account-submit" type="submit">Attribuer la présidence</button>
-          </form>
-          <form data-remove-member-form class="workspace-form">
-            <h3>Retirer l’accès d’un membre</h3>
-            <label for="remove-workspace">Association</label>
-            <select id="remove-workspace" data-admin-association-select name="association_id" required></select>
-            <label for="remove-member-email">E-mail du compte membre</label>
-            <input id="remove-member-email" name="member_email" type="email" maxlength="254" required />
-            <button class="button button-dark account-submit" type="submit">Retirer l’accès</button>
-          </form>
         </section>
       </section>
     </main>

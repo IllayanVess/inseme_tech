@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Create and manage PSTB Tech associations." />
+    <title>Association administration — PSTB Tech</title>
+  </head>
+  <body class="account-page">
+    <header class="site-header">
+      <a class="wordmark" href="/en/" aria-label="PSTB Tech, home"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a class="nav-link" href="/en/">Home</a><a class="nav-link" href="/en/about/">About us</a><a class="nav-link" href="/en/associations/">Associations</a><a class="nav-cta" href="/en/activities/">Activities <span aria-hidden="true">↗</span></a><a class="nav-link active" href="/en/account/" aria-current="page">My account</a>
+        <div class="language-switch" aria-label="Choose language"><a href="/compte/admin/associations/" lang="fr">FR</a><span aria-hidden="true">/</span><a class="selected" href="/en/account/admin/associations/" lang="en" aria-current="page">EN</a></div>
+      </nav>
+    </header>
+    <main class="account-main" data-admin-associations-page>
+      <section class="account-shell wrap">
+        <p class="eyebrow">ADMINISTRATION</p>
+        <h1>Associations</h1>
+        <p><a href="/en/account/">← Back to my account</a> · <a href="/en/account/admin/users/">Manage accounts</a></p>
+        <p class="account-status" data-admin-page-status role="status" aria-live="polite">Loading…</p>
+        <div data-admin-page-body hidden>
+          <section class="account-card" aria-labelledby="create-association-title">
+            <h2 id="create-association-title">Create an association</h2>
+            <p>The association and its presidency are created together. Your confirmed account is selected as president; you can enter another confirmed account.</p>
+            <form class="association-create-form" data-association-create-form>
+              <label for="association-slug">Page address (slug)</label>
+              <input id="association-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" autocomplete="off" required />
+              <label for="association-name">Association name</label>
+              <input id="association-name" name="name" maxlength="120" required />
+              <label for="association-president-email">Confirmed president account email</label>
+              <input id="association-president-email" name="presidentEmail" type="email" maxlength="254" autocomplete="email" required />
+              <label for="association-intro-fr">Introduction — français</label>
+              <textarea id="association-intro-fr" name="introductionFr" maxlength="2000" rows="3" required></textarea>
+              <label for="association-intro-en">Introduction — English</label>
+              <textarea id="association-intro-en" name="introductionEn" maxlength="2000" rows="3" required></textarea>
+              <label for="association-mission-fr">Mission — français (optional)</label>
+              <textarea id="association-mission-fr" name="missionFr" maxlength="2000" rows="3"></textarea>
+              <label for="association-mission-en">Mission — English (optional)</label>
+              <textarea id="association-mission-en" name="missionEn" maxlength="2000" rows="3"></textarea>
+              <label for="association-public-email">Public email (optional)</label>
+              <input id="association-public-email" name="publicEmail" type="email" maxlength="254" />
+              <button class="button button-dark account-submit" type="submit">Create association</button>
+            </form>
+          </section>
+          <section class="account-card" aria-labelledby="association-list-title">
+            <h2 id="association-list-title">Presidencies</h2>
+            <p>Each association appears once. Use its row to transfer the presidency.</p>
+            <div class="account-association-list" data-admin-association-list aria-live="polite"></div>
+          </section>
+          <section class="account-card" aria-labelledby="remove-member-title">
+            <h2 id="remove-member-title">Remove a member’s access</h2>
+            <form class="workspace-form" data-admin-remove-member-form>
+              <label for="remove-member-association">Association</label>
+              <select id="remove-member-association" name="associationId" required></select>
+              <label for="remove-member-email">Member account email</label>
+              <input id="remove-member-email" name="memberEmail" type="email" maxlength="254" required />
+              <button class="button button-dark account-submit" type="submit">Remove member access</button>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

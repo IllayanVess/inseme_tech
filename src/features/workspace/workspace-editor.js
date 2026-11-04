@@ -12,7 +12,6 @@ import {
   saveAssociationSocialLink,
   uploadAssociationMedia,
 } from '../../services/association-workspace.js'
-import { callAccountAdministration } from '../../services/account.js'
 
 const english = document.documentElement.lang === 'en'
 
@@ -178,9 +177,8 @@ function scrollToForm(form) {
   form.scrollIntoView({ behavior, block: 'center' })
 }
 
-export function initializeWorkspaceEditor({ accountRoot, onAssociationCreated }) {
+export function initializeWorkspaceEditor({ accountRoot }) {
   const editor = $(accountRoot, '[data-workspace-editor]')
-  const adminTools = $(accountRoot, '[data-admin-workspace-tools]')
   if (!editor) return { setContext: () => {} }
 
   const workspaceSelect = $(editor, '[data-workspace-select]')
@@ -710,93 +708,14 @@ export function initializeWorkspaceEditor({ accountRoot, onAssociationCreated })
   }
 
   const loadAdminAssociationOptions = async () => {
-    const associations = await getWorkspaceAssociations()
-    const selects = accountRoot.querySelectorAll('[data-admin-association-select]')
-    selects.forEach((select) => {
-      select.replaceChildren()
-      associations.forEach((association) => addOption(select, association.id, association.name))
-    })
-    return associations
+    return getWorkspaceAssociations()
   }
-
-  const bindAdminTools = () => {
-    if (!adminTools) return
-    const adminStatus = $(adminTools, '[data-admin-workspace-status]')
-    const createForm = $(adminTools, '[data-create-workspace-form]')
-    const transferForm = $(adminTools, '[data-transfer-president-form]')
-    const removeForm = $(adminTools, '[data-remove-member-form]')
-
-    const runAdminAction = async (form, action, values, successMessage) => {
-      const button = form.querySelector('[type="submit"]')
-      button.disabled = true
-      setMessage(adminStatus, copy.loading)
-      try {
-        const { data, error } = await callAccountAdministration(action, values)
-        if (error || !data?.ok) {
-          setMessage(adminStatus, copy.adminErrorMessages[data?.code] || copy.adminError, true)
-          return false
-        }
-        setMessage(adminStatus, successMessage)
-        return true
-      } catch (error) {
-        console.error('Workspace administration request failed:', error)
-        setMessage(adminStatus, copy.adminError, true)
-        return false
-      } finally {
-        button.disabled = false
-      }
-    }
-
-    createForm.addEventListener('submit', async (event) => {
-      event.preventDefault()
-      const values = new FormData(createForm)
-      const ok = await runAdminAction(createForm, 'create-workspace', {
-        slug: values.get('slug').trim(),
-        name: values.get('name').trim(),
-        introductionFr: values.get('introduction_fr').trim(),
-        introductionEn: values.get('introduction_en').trim(),
-        presidentEmail: values.get('president_email').trim(),
-      }, copy.workspaceCreated)
-      if (ok) {
-        createForm.reset()
-        try {
-          setWorkspaceOptions(await loadAdminAssociationOptions())
-          await onAssociationCreated?.()
-        } catch (error) {
-          console.error('Workspace admin list refresh failed:', error)
-          setMessage(adminStatus, copy.adminError, true)
-        }
-      }
-    })
-
-    transferForm.addEventListener('submit', async (event) => {
-      event.preventDefault()
-      const values = new FormData(transferForm)
-      const ok = await runAdminAction(transferForm, 'set-president', {
-        associationId: values.get('association_id'),
-        presidentEmail: values.get('president_email').trim(),
-      }, copy.presidentChanged)
-      if (ok) transferForm.reset()
-    })
-
-    removeForm.addEventListener('submit', async (event) => {
-      event.preventDefault()
-      const values = new FormData(removeForm)
-      const ok = await runAdminAction(removeForm, 'end-membership', {
-        associationId: values.get('association_id'),
-        memberEmail: values.get('member_email').trim(),
-      }, copy.memberEnded)
-      if (ok) removeForm.reset()
-    })
-  }
-
-  bindAdminTools()
 
   return {
     async setContext(nextContext) {
       context = nextContext
+      activeAssociationId = new URLSearchParams(window.location.search).get('association') || activeAssociationId
       editor.hidden = true
-      if (adminTools) adminTools.hidden = !context.isAdmin
       if (!context.user) return
 
       try {

@@ -5,7 +5,6 @@ import {
   getAssociationEvents,
   getMyMemberProfiles,
   getMyActiveAssociationMemberships,
-  updateAssociationPage,
   updateAssociationEvent,
   updateMyMemberProfile,
 } from '../../services/association-content.js'
@@ -14,6 +13,7 @@ import {
   getAccountSession,
   getAccountUser,
   onAccountChange,
+  refreshAccountSession,
   signIn,
   signOut,
   updateAccountPassword,
@@ -33,6 +33,7 @@ const pageCopy = {
     emailNotConfirmed: 'Cette adresse e-mail n’a pas été confirmée. Contactez un administrateur.',
     accountDisabled: 'Ce compte est temporairement désactivé. Contactez un administrateur.',
     tooManyAttempts: 'Trop de tentatives. Réessayez dans quelques minutes.',
+    bootstrapError: 'Impossible d’activer le compte administrateur. Vérifiez la configuration et réessayez.',
     roleUpdateError: 'Impossible de modifier ce rôle. Vérifiez vos droits et réessayez.',
     noUsers: 'Aucun autre compte à afficher.',
     save: 'Enregistrer',
@@ -73,6 +74,12 @@ const pageCopy = {
     presidentSaveError: 'Impossible d’attribuer cette présidence. Vérifiez le compte et réessayez.',
     associationCreated: 'Association créée et présidence attribuée.',
     associationCreateError: 'Impossible de créer l’association. Vérifiez les informations, le slug et le compte confirmé.',
+    associationPresidentUnconfirmed: 'Aucun compte confirmé ne correspond à cet e-mail.',
+    associationDetailsInvalid: 'Vérifiez le slug, les champs obligatoires et les deux présentations.',
+    associationSlugExists: 'Cette adresse est déjà utilisée. Choisissez un autre slug.',
+    associationAdminRequired: 'La session ne dispose plus des droits administrateur. Reconnectez-vous.',
+    associationSetupMissing: 'La fonction de création n’est pas installée dans Supabase. Appliquez la migration d’administration des associations et déployez la fonction manage-users.',
+    associationAdminNotConfigured: 'Le service d’administration Supabase n’est pas configuré. Vérifiez ses secrets et son déploiement.',
     members: 'Membres',
     inviteMember: 'Ajouter un membre',
     memberEmail: 'Adresse e-mail du membre',
@@ -144,6 +151,7 @@ const pageCopy = {
     emailNotConfirmed: 'This email address has not been confirmed. Contact an administrator.',
     accountDisabled: 'This account is temporarily disabled. Contact an administrator.',
     tooManyAttempts: 'Too many attempts. Try again in a few minutes.',
+    bootstrapError: 'Could not activate administrator access. Check the setup and try again.',
     roleUpdateError: 'Could not change this role. Check your access and try again.',
     noUsers: 'There are no more accounts to show.',
     save: 'Save',
@@ -184,6 +192,12 @@ const pageCopy = {
     presidentSaveError: 'Could not assign this president. Check the account and try again.',
     associationCreated: 'Association created and presidency assigned.',
     associationCreateError: 'Could not create the association. Check the details, slug, and confirmed account.',
+    associationPresidentUnconfirmed: 'No confirmed account matches this email address.',
+    associationDetailsInvalid: 'Check the slug, required fields, and both introductions.',
+    associationSlugExists: 'This page address is already in use. Choose another slug.',
+    associationAdminRequired: 'This session no longer has administrator access. Sign in again.',
+    associationSetupMissing: 'Association creation is not installed in Supabase. Apply the association administration migration and deploy the manage-users function.',
+    associationAdminNotConfigured: 'Supabase account administration is not configured. Check its server secrets and deployment.',
     members: 'Members',
     inviteMember: 'Add a member',
     memberEmail: 'Member email address',
@@ -256,23 +270,10 @@ export function initializeAccountPage() {
   const memberProfiles = root.querySelector('[data-member-profiles]')
   const passwordForm = root.querySelector('[data-password-form]')
   const associationEditors = root.querySelector('[data-association-editors]')
-  const adminPanel = root.querySelector('[data-admin-panel]')
-  const associationList = root.querySelector('[data-association-list]')
-  const associationCreateForm = root.querySelector('[data-association-create-form]')
-  const userList = root.querySelector('[data-user-list]')
-  const loadMoreButton = root.querySelector('[data-load-more]')
+  const adminLinks = root.querySelector('[data-admin-links]')
+  const bootstrapArea = root.querySelector('[data-bootstrap-area]')
   const bootstrapButton = root.querySelector('[data-bootstrap-admin]')
-  const bootstrapHelp = root.querySelector('[data-bootstrap-help]')
-  const workspaceEditor = initializeWorkspaceEditor({
-    accountRoot: root,
-    onAssociationCreated: async () => {
-      await loadAssociations()
-      await loadWorkspaces()
-    },
-  })
-  const pageSize = 50
-  let page = 0
-  let hasMoreUsers = false
+  const workspaceEditor = initializeWorkspaceEditor({ accountRoot: root })
   let currentUser = null
 
   const setStatus = (message) => { status.textContent = message }
@@ -306,15 +307,11 @@ export function initializeAccountPage() {
     const isAdmin = user?.app_metadata?.role === 'admin'
     forms.hidden = Boolean(user)
     profile.hidden = !user
-    adminPanel.hidden = true
+    adminLinks.hidden = true
+    bootstrapArea.hidden = true
     associationEditors.replaceChildren()
-    associationList.replaceChildren()
     memberProfiles.replaceChildren()
     bootstrapButton.hidden = true
-    bootstrapHelp.hidden = true
-    userList.replaceChildren()
-    loadMoreButton.hidden = true
-    page = 0
 
     if (!user) {
       setStatus(copy.signedOut)
@@ -328,17 +325,19 @@ export function initializeAccountPage() {
     const memberships = await loadWorkspaces()
     await workspaceEditor.setContext({ user, memberships, isAdmin })
     await loadMemberProfiles()
+    if (new URLSearchParams(window.location.search).get('created') === '1') {
+      setStatus(copy.associationCreated)
+    }
 
     if (isAdmin) {
-      adminPanel.hidden = false
-      await Promise.all([loadUsers({ append: false }), loadAssociations()])
+      adminLinks.hidden = false
       return
     }
 
     const { data, error } = await callAccountAdministration('bootstrap-status')
     if (error) return
     if (data?.canBootstrap) {
-      adminPanel.hidden = false
+      bootstrapArea.hidden = false
       bootstrapButton.hidden = false
     }
   }
@@ -356,11 +355,11 @@ export function initializeAccountPage() {
         const association = membership.association
         if (!association?.slug || !association?.name) return
         workspaceList.append(createWorkspaceRow(membership, copy))
-        if (membership.permission_role === 'president' && currentUser?.app_metadata?.role !== 'admin') {
+        if (membership.permission_role === 'president') {
           associationEditors.append(createAssociationEditor(association, copy))
         }
       })
-      if (currentUser?.app_metadata?.role !== 'admin') await loadEventEditors(associationEditors)
+      await loadEventEditors(associationEditors)
       return memberships
     } catch {
       appendWorkspaceMessage(workspaceList, copy.workspaceLoadError)
@@ -379,55 +378,6 @@ export function initializeAccountPage() {
       profiles.forEach((profile) => memberProfiles.append(createMemberProfileEditor(profile, copy)))
     } catch {
       appendWorkspaceMessage(memberProfiles, copy.workspaceLoadError)
-    }
-  }
-
-  const loadAssociations = async () => {
-    const { data, error } = await callAccountAdministration('list-associations')
-    if (error || !Array.isArray(data?.associations)) {
-      setStatus(copy.associationLoadError)
-      return
-    }
-
-    associationEditors.replaceChildren()
-    associationList.replaceChildren()
-    if (!data.associations.length) {
-      appendWorkspaceMessage(associationList, copy.noManagedAssociations)
-      appendWorkspaceMessage(associationEditors, copy.noManagedAssociations)
-      return
-    }
-
-    data.associations.forEach((association) => {
-      associationList.append(createAssociationManagementRow(association, copy))
-      associationEditors.append(createAssociationEditor(association, copy))
-    })
-    await loadEventEditors(associationEditors)
-  }
-
-  const loadUsers = async ({ append }) => {
-    if (!currentUser || currentUser.app_metadata?.role !== 'admin') return
-    const requestedPage = append ? page + 1 : 1
-    loadMoreButton.disabled = true
-    const { data, error } = await callAccountAdministration('list-users', {
-      page: requestedPage,
-      perPage: pageSize,
-    })
-    loadMoreButton.disabled = false
-
-    if (error || !Array.isArray(data?.users)) {
-      setStatus(copy.accountLoadError)
-      return
-    }
-
-    page = requestedPage
-    hasMoreUsers = data.hasMore
-    if (!append) userList.replaceChildren()
-    data.users.forEach((user) => userList.append(createUserRow(user, copy)))
-    loadMoreButton.hidden = !hasMoreUsers
-    if (!data.users.length && !append) {
-      const empty = document.createElement('p')
-      empty.textContent = copy.noUsers
-      userList.append(empty)
     }
   }
 
@@ -459,35 +409,23 @@ export function initializeAccountPage() {
     await renderProfile(null)
   })
 
-  loadMoreButton.addEventListener('click', () => loadUsers({ append: true }))
-
-  associationCreateForm.addEventListener('submit', async (event) => {
-    event.preventDefault()
-    const form = event.currentTarget
-    const submit = form.querySelector('[type="submit"]')
-    const values = new FormData(form)
-    submit.disabled = true
+  bootstrapButton.addEventListener('click', async () => {
+    bootstrapButton.disabled = true
     setStatus(copy.loading)
-    const { error } = await callAccountAdministration('create-association', {
-      slug: values.get('slug'),
-      name: values.get('name'),
-      presidentEmail: values.get('presidentEmail'),
-      introductionFr: values.get('introductionFr'),
-      introductionEn: values.get('introductionEn'),
-      missionFr: values.get('missionFr'),
-      missionEn: values.get('missionEn'),
-      publicEmail: values.get('publicEmail'),
-    })
-    submit.disabled = false
-    if (error) {
-      setStatus(copy.associationCreateError)
+    const { error: bootstrapError } = await callAccountAdministration('bootstrap')
+    if (bootstrapError) {
+      bootstrapButton.disabled = false
+      setStatus(copy.bootstrapError)
       return
     }
-    form.reset()
-    setStatus(copy.associationCreated)
-    await loadAssociations()
-    const memberships = await loadWorkspaces()
-    await workspaceEditor.setContext({ user: currentUser, memberships, isAdmin: true })
+
+    const { data: sessionData, error: refreshError } = await refreshAccountSession()
+    if (refreshError || !sessionData?.user) {
+      bootstrapButton.disabled = false
+      setStatus(copy.bootstrapError)
+      return
+    }
+    await renderProfile(sessionData.user)
   })
 
   associationEditors.addEventListener('submit', async (event) => {
@@ -547,41 +485,6 @@ export function initializeAccountPage() {
       }
       return
     }
-
-    const form = event.target.closest('[data-association-edit-form]')
-    if (!form) return
-    event.preventDefault()
-    const submit = form.querySelector('[type="submit"]')
-    const values = new FormData(form)
-    const visibility = values.get('visibility')
-    const publishedAt = form.dataset.publishedAt
-    submit.disabled = true
-    setStatus(copy.loading)
-    try {
-      await updateAssociationPage(form.dataset.associationId, {
-        name: values.get('name').trim(),
-        introduction_fr: values.get('introduction_fr').trim(),
-        introduction_en: values.get('introduction_en').trim(),
-        mission_fr: values.get('mission_fr').trim() || null,
-        mission_en: values.get('mission_en').trim() || null,
-        public_email: values.get('public_email').trim() || null,
-        public_phone: values.get('public_phone').trim() || null,
-        website_url: values.get('website_url').trim() || null,
-        theme_accent: values.get('theme_accent'),
-        visibility,
-        published_at: visibility === 'published' ? (publishedAt || new Date().toISOString()) : null,
-      })
-      form.dataset.publishedAt = visibility === 'published'
-        ? (publishedAt || new Date().toISOString())
-        : ''
-      setStatus(copy.pageSaved)
-      await loadWorkspaces()
-      if (currentUser?.app_metadata?.role === 'admin') await loadAssociations()
-    } catch {
-      setStatus(copy.pageSaveError)
-    } finally {
-      submit.disabled = false
-    }
   })
 
   memberProfiles.addEventListener('submit', async (event) => {
@@ -633,42 +536,6 @@ export function initializeAccountPage() {
     setStatus(copy.passwordSaved)
   })
 
-  associationList.addEventListener('submit', async (event) => {
-    const form = event.target.closest('[data-president-form]')
-    if (!form) return
-    event.preventDefault()
-    const submit = form.querySelector('[type="submit"]')
-    const email = new FormData(form).get('presidentEmail')
-    submit.disabled = true
-    setStatus(copy.loading)
-    const { error } = await callAccountAdministration('set-president', {
-      associationId: form.dataset.associationId,
-      presidentEmail: email,
-    })
-    submit.disabled = false
-    if (error) {
-      setStatus(copy.presidentSaveError)
-      return
-    }
-    setStatus(copy.presidentSaved)
-    await loadAssociations()
-  })
-
-  userList.addEventListener('click', async (event) => {
-    const button = event.target.closest('[data-save-role]')
-    if (!button) return
-    const row = button.closest('[data-user-id]')
-    const select = row.querySelector('select')
-    button.disabled = true
-    const { error } = await callAccountAdministration('set-role', {
-      userId: row.dataset.userId,
-      role: select.value,
-    })
-    button.disabled = false
-    setStatus(error ? copy.roleUpdateError : copy.roleSaved)
-    if (!error) await loadUsers({ append: false })
-  })
-
   onAccountChange(async (_event, session) => {
     if (!session) {
       if (currentUser) await renderProfile(null)
@@ -702,35 +569,6 @@ export function initializeAccountPage() {
     }
     await renderProfile(userData.user)
   })
-}
-
-function createUserRow(user, copy) {
-  const row = document.createElement('div')
-  row.className = 'account-user-row'
-  row.dataset.userId = user.id
-
-  const email = document.createElement('span')
-  email.className = 'account-user-email'
-  email.textContent = user.email || copy.email
-
-  const select = document.createElement('select')
-  select.setAttribute('aria-label', `${copy.email}: ${user.email || user.id}`)
-  for (const [value, label] of [['member', copy.memberOption], ['admin', copy.adminOption]]) {
-    const option = document.createElement('option')
-    option.value = value
-    option.textContent = label
-    option.selected = user.role === value
-    select.append(option)
-  }
-
-  const button = document.createElement('button')
-  button.className = 'account-role-save'
-  button.type = 'button'
-  button.dataset.saveRole = ''
-  button.textContent = copy.save
-
-  row.append(email, select, button)
-  return row
 }
 
 function createWorkspaceRow(membership, copy) {
@@ -769,82 +607,10 @@ function createAssociationEditor(association, copy) {
   const details = document.createElement('details')
   details.className = 'account-association-editor'
   const summary = document.createElement('summary')
-  summary.textContent = `${copy.editPage} — ${association.name}`
-  details.append(summary)
-
-  const form = document.createElement('form')
-  form.dataset.associationEditForm = ''
-  form.dataset.associationId = association.id
-  form.dataset.publishedAt = association.published_at ?? ''
-
-  const fields = [
-    { name: 'name', label: copy.pageName, required: true, maxLength: 120 },
-    { name: 'introduction_fr', label: copy.introductionFr, multiline: true, required: true, maxLength: 2000 },
-    { name: 'introduction_en', label: copy.introductionEn, multiline: true, required: true, maxLength: 2000 },
-    { name: 'mission_fr', label: copy.missionFr, multiline: true, maxLength: 2000 },
-    { name: 'mission_en', label: copy.missionEn, multiline: true, maxLength: 2000 },
-    { name: 'public_email', label: copy.publicEmail, type: 'email' },
-    { name: 'public_phone', label: copy.publicPhone, type: 'tel' },
-    { name: 'website_url', label: copy.websiteUrl, type: 'url' },
-  ]
-
-  fields.forEach((field) => {
-    const label = document.createElement('label')
-    label.textContent = field.label
-    const input = document.createElement(field.multiline ? 'textarea' : 'input')
-    input.name = field.name
-    if (field.type) input.type = field.type
-    if (field.maxLength) input.maxLength = field.maxLength
-    if (field.required) input.required = true
-    if (field.multiline) input.rows = 3
-    input.value = association[field.name] ?? ''
-    label.htmlFor = `association-${association.id}-${field.name}`
-    input.id = label.htmlFor
-    form.append(label, input)
-  })
-
-  const accentLabel = document.createElement('label')
-  accentLabel.textContent = copy.themeAccent
-  const accentSelect = document.createElement('select')
-  accentSelect.name = 'theme_accent'
-  accentSelect.id = `association-${association.id}-theme-accent`
-  accentLabel.htmlFor = accentSelect.id
-  Object.entries(copy.accents).forEach(([value, label]) => {
-    const option = document.createElement('option')
-    option.value = value
-    option.textContent = label
-    option.selected = association.theme_accent === value
-    accentSelect.append(option)
-  })
-  form.append(accentLabel, accentSelect)
-
-  const visibilityLabel = document.createElement('label')
-  visibilityLabel.textContent = copy.visibility
-  const visibilitySelect = document.createElement('select')
-  visibilitySelect.name = 'visibility'
-  visibilitySelect.id = `association-${association.id}-visibility`
-  visibilityLabel.htmlFor = visibilitySelect.id
-  const visibilityOptions = ['draft', 'published', 'archived']
-  visibilityOptions.forEach((value) => {
-    const option = document.createElement('option')
-    option.value = value
-    option.textContent = copy[value]
-    option.selected = association.visibility === value
-    visibilitySelect.append(option)
-  })
-  form.append(visibilityLabel, visibilitySelect)
-
-  const save = document.createElement('button')
-  save.className = 'button button-dark account-submit'
-  save.type = 'submit'
-  save.textContent = copy.savePage
-  form.append(save)
-  details.append(form)
-  details.append(createMemberInviteForm(association, copy))
-  details.append(createEventManager(association, copy))
+  summary.textContent = `${copy.members} — ${association.name}`
+  details.append(summary, createMemberInviteForm(association, copy), createEventManager(association, copy))
   return details
 }
-
 function createEventManager(association, copy) {
   const section = document.createElement('section')
   section.className = 'association-event-manager'
@@ -1181,35 +947,6 @@ function createMemberProfileEditor(profile, copy) {
   form.append(consentLabel, save)
   details.append(form)
   return details
-}
-
-function createAssociationManagementRow(association, copy) {
-  const row = document.createElement('article')
-  row.className = 'account-association-row'
-  const heading = document.createElement('h4')
-  heading.textContent = association.name
-  const currentPresident = document.createElement('p')
-  currentPresident.textContent = association.presidentEmail || copy.noPresident
-
-  const form = document.createElement('form')
-  form.dataset.presidentForm = ''
-  form.dataset.associationId = association.id
-  const label = document.createElement('label')
-  label.htmlFor = `president-${association.id}`
-  label.textContent = copy.presidentEmail
-  const email = document.createElement('input')
-  email.id = label.htmlFor
-  email.name = 'presidentEmail'
-  email.type = 'email'
-  email.autocomplete = 'email'
-  email.required = true
-  const button = document.createElement('button')
-  button.className = 'account-role-save'
-  button.type = 'submit'
-  button.textContent = copy.assignPresident
-  form.append(label, email, button)
-  row.append(heading, currentPresident, form)
-  return row
 }
 
 function appendWorkspaceMessage(list, message) {

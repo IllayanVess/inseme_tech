@@ -88,7 +88,7 @@ Deno.serve(async (request: Request) => {
     )
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     if (!url || !publishableKey || !serviceKey) {
-      return json({ error: 'Account administration is not configured.' }, 503)
+      return json({ error: 'Account administration is not configured.', code: 'admin_not_configured' }, 503)
     }
 
     const userClient = createClient(url, publishableKey, {
@@ -211,7 +211,7 @@ Deno.serve(async (request: Request) => {
       return json({ ok: true, invitationSent })
     }
 
-    if (!callerIsAdmin) return json({ error: 'Administrator access is required.' }, 403)
+    if (!callerIsAdmin) return json({ error: 'Administrator access is required.', code: 'admin_required' }, 403)
 
     if (action === 'list-associations') {
       const { data: associations, error: associationError } = await admin
@@ -251,12 +251,12 @@ Deno.serve(async (request: Request) => {
         ? normalizeEmail(body.presidentEmail)
         : ''
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(presidentEmail)) {
-        return json({ error: 'Enter the email of a confirmed account.' }, 400)
+        return json({ error: 'Enter the email of a confirmed account.', code: 'president_account_unconfirmed' }, 400)
       }
 
       const president = await findUserByEmail(admin, presidentEmail)
       if (!president || !president.email_confirmed_at) {
-        return json({ error: 'No confirmed account matches that email.' }, 404)
+        return json({ error: 'No confirmed account matches that email.', code: 'president_account_unconfirmed' }, 404)
       }
 
       if (action === 'create-association') {
@@ -273,7 +273,7 @@ Deno.serve(async (request: Request) => {
           || missionFr.length > 2000 || missionEn.length > 2000
           || Boolean(missionFr) !== Boolean(missionEn)
           || (publicEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(publicEmail))) {
-          return json({ error: 'Check the association details and both language versions.' }, 400)
+          return json({ error: 'Check the association details and both language versions.', code: 'invalid_association_fields' }, 400)
         }
 
         const { data, error } = await admin.rpc('admin_create_association', {
@@ -287,7 +287,15 @@ Deno.serve(async (request: Request) => {
           p_assigned_by: caller.id,
           p_president_user_id: president.id,
         })
-        if (error) return json({ error: 'Could not create the association. Check that its address is unique.' }, 409)
+        if (error?.code === '23505') {
+          return json({ error: 'That association address is already in use.', code: 'association_slug_exists' }, 409)
+        }
+        if (error?.code === 'PGRST202' || error?.code === '42883') {
+          return json({ error: 'Association administration is not installed in the database.', code: 'admin_create_function_missing' }, 503)
+        }
+        if (error) {
+          return json({ error: 'Could not create the association.', code: 'association_create_failed' }, 500)
+        }
         return json({ ok: true, associationId: data })
       }
 
@@ -339,42 +347,6 @@ Deno.serve(async (request: Request) => {
       })
       if (error) return json({ error: 'Could not update this account role.' }, 500)
       return json({ ok: true, userId: target.id, role: body.role })
-    }
-
-    if (action === 'create-workspace') {
-      const slug = typeof body.slug === 'string' ? body.slug.trim().toLowerCase() : ''
-      const name = typeof body.name === 'string' ? body.name.trim() : ''
-      const introductionFr = typeof body.introductionFr === 'string' ? body.introductionFr.trim() : ''
-      const introductionEn = typeof body.introductionEn === 'string' ? body.introductionEn.trim() : ''
-      if (!/^([a-z0-9]+-)*[a-z0-9]+$/.test(slug)
-        || name.length < 1 || name.length > 120
-        || introductionFr.length < 1 || introductionFr.length > 4000
-        || introductionEn.length < 1 || introductionEn.length > 4000
-        || !validEmail(body.presidentEmail)) {
-        return json({ error: 'Complete the required workspace fields.' }, 400)
-      }
-
-      let president: User
-      const foundPresident = await findUserByEmail(admin, body.presidentEmail)
-      if (!foundPresident) return json({ error: 'The president account was not found.', code: 'account_not_found' }, 404)
-      president = foundPresident
-      if (!president.email_confirmed_at) {
-        return json({ error: 'The president account must confirm its email first.', code: 'account_not_confirmed' }, 409)
-      }
-
-      const { data, error } = await admin.rpc('create_association_workspace', {
-        p_slug: slug,
-        p_name: name,
-        p_introduction_fr: introductionFr,
-        p_introduction_en: introductionEn,
-        p_president_user_id: president.id,
-        p_assigned_by: caller.id,
-      })
-      if (error) {
-        if (error.code === '23505') return json({ error: 'That association address is already in use.', code: 'workspace_exists' }, 409)
-        return json({ error: 'Could not create the association workspace.', code: 'workspace_create_failed' }, 500)
-      }
-      return json({ ok: true, associationId: data })
     }
 
     if (action === 'end-membership') {

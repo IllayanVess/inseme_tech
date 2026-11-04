@@ -47,42 +47,19 @@
             <input id="account-new-password" name="password" type="password" autocomplete="new-password" minlength="10" required />
             <button class="button button-dark account-submit" type="submit">Save password</button>
           </form>
-          <section class="account-workspaces" data-association-editors aria-label="Edit my association pages"></section>
+          <section class="account-workspaces" data-association-editors aria-label="Manage members and events for my associations"></section>
+          <nav class="account-card" data-admin-links hidden aria-label="Administration tools">
+            <h2>Administration</h2>
+            <p><a href="/en/account/admin/associations/">Manage associations and presidencies</a></p>
+            <p><a href="/en/account/admin/users/">Manage account roles</a></p>
+          </nav>
+          <section class="account-workspaces" data-bootstrap-area hidden aria-labelledby="bootstrap-title">
+            <h3 id="bootstrap-title">Initial setup</h3>
+            <button class="button button-dark account-submit" data-bootstrap-admin type="button">Activate my first administrator account</button>
+          </section>
           <button class="button button-dark account-submit" data-signout type="button">Sign out</button>
         </section>
-        <section class="account-card account-admin" data-admin-panel hidden aria-labelledby="admin-title">
-          <h2 id="admin-title">Role administration</h2>
-          <p>Grant or remove administrator access for PSTB Tech accounts.</p>
-          <button class="button button-dark account-submit" data-bootstrap-admin type="button" hidden>Activate my first administrator account</button>
-          <p data-bootstrap-help hidden>Initial setup must be enabled on the Supabase server.</p>
-          <section class="account-workspaces" aria-labelledby="association-admin-title">
-            <h3 id="association-admin-title">Associations and presidents</h3>
-            <form class="association-create-form" data-association-create-form>
-              <label for="association-slug">Page address (slug)</label>
-              <input id="association-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required />
-              <label for="association-name">Association name</label>
-              <input id="association-name" name="name" maxlength="120" required />
-              <label for="association-president-email">Confirmed president account email</label>
-              <input id="association-president-email" name="presidentEmail" type="email" autocomplete="email" required />
-              <label for="association-intro-fr">Introduction — français</label>
-              <textarea id="association-intro-fr" name="introductionFr" maxlength="2000" rows="3" required></textarea>
-              <label for="association-intro-en">Introduction — English</label>
-              <textarea id="association-intro-en" name="introductionEn" maxlength="2000" rows="3" required></textarea>
-              <label for="association-mission-fr">Mission — français (optional)</label>
-              <textarea id="association-mission-fr" name="missionFr" maxlength="2000" rows="3"></textarea>
-              <label for="association-mission-en">Mission — English (optional)</label>
-              <textarea id="association-mission-en" name="missionEn" maxlength="2000" rows="3"></textarea>
-              <label for="association-public-email">Public email (optional)</label>
-              <input id="association-public-email" name="publicEmail" type="email" autocomplete="email" />
-              <button class="button button-dark account-submit" type="submit">Create association</button>
-            </form>
-            <p class="account-hint">Create the account in Supabase Auth and confirm its email first. Each association can have one active president.</p>
-            <div class="account-association-list" data-association-list aria-live="polite"></div>
-          </section>
-          <div class="account-user-list" data-user-list></div>
-          <button class="account-load-more" data-load-more type="button" hidden>Load more accounts</button>
-        </section>
-        <section class="account-card workspace-editor" data-workspace-editor hidden aria-labelledby="workspace-editor-title">
+        <section class="account-card workspace-editor" data-workspace-editor id="workspace-editor" hidden aria-labelledby="workspace-editor-title">
           <p class="eyebrow">ASSOCIATION ADMINISTRATION</p>
           <h2 id="workspace-editor-title">Edit a workspace</h2>
           <label for="workspace-select">Association</label>
@@ -230,40 +207,6 @@
               <div class="workspace-list" data-assignment-list></div>
             </section>
           </div>
-        </section>
-        <section class="account-card account-admin-workspaces" data-admin-workspace-tools hidden aria-labelledby="admin-workspace-title">
-          <h2 id="admin-workspace-title">Association workspace administration</h2>
-          <p data-admin-workspace-status role="status" aria-live="polite"></p>
-          <form data-create-workspace-form class="workspace-form">
-            <h3>Create a workspace and assign its president</h3>
-            <label for="new-workspace-name">Association name</label>
-            <input id="new-workspace-name" name="name" maxlength="120" required />
-            <label for="new-workspace-slug">Short address</label>
-            <input id="new-workspace-slug" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" required />
-            <label for="new-workspace-intro-fr">Présentation — français</label>
-            <textarea id="new-workspace-intro-fr" name="introduction_fr" maxlength="4000" required></textarea>
-            <label for="new-workspace-intro-en">Introduction — English</label>
-            <textarea id="new-workspace-intro-en" name="introduction_en" maxlength="4000" required></textarea>
-            <label for="new-workspace-president">Email of a confirmed account</label>
-            <input id="new-workspace-president" name="president_email" type="email" maxlength="254" required />
-            <button class="button button-dark account-submit" type="submit">Create workspace</button>
-          </form>
-          <form data-transfer-president-form class="workspace-form">
-            <h3>Transfer the presidency</h3>
-            <label for="transfer-workspace">Association</label>
-            <select id="transfer-workspace" data-admin-association-select name="association_id" required></select>
-            <label for="transfer-president-email">Email of a confirmed account</label>
-            <input id="transfer-president-email" name="president_email" type="email" maxlength="254" required />
-            <button class="button button-dark account-submit" type="submit">Assign president</button>
-          </form>
-          <form data-remove-member-form class="workspace-form">
-            <h3>Remove a member's access</h3>
-            <label for="remove-workspace">Association</label>
-            <select id="remove-workspace" data-admin-association-select name="association_id" required></select>
-            <label for="remove-member-email">Member account email</label>
-            <input id="remove-member-email" name="member_email" type="email" maxlength="254" required />
-            <button class="button button-dark account-submit" type="submit">Remove access</button>
-          </form>
         </section>
       </section>
     </main>
