@@ -29,25 +29,44 @@
       <p class="association-status wrap" data-association-status role="status" aria-live="polite">Loading association…</p>
 
       <div class="association-content" data-association-content hidden>
-        <section class="association-section wrap" data-association-mission-section hidden aria-labelledby="association-mission-heading">
-          <p class="eyebrow">THE ASSOCIATION</p>
-          <h2 id="association-mission-heading">Our mission</h2>
-          <div data-association-mission></div>
+        <div data-association-overview>
+          <section class="association-section wrap" data-association-mission-section hidden aria-labelledby="association-mission-heading">
+            <p class="eyebrow">THE ASSOCIATION</p>
+            <h2 id="association-mission-heading">Our mission</h2>
+            <div data-association-mission></div>
+          </section>
+          <section class="association-section wrap" aria-labelledby="association-events-heading">
+            <p class="eyebrow">MEETUPS · PROJECTS · WORKSHOPS</p>
+            <h2 id="association-events-heading">Upcoming events</h2>
+            <div class="association-event-list" data-association-events></div>
+          </section>
+          <section class="association-section wrap" aria-labelledby="association-members-heading">
+            <p class="eyebrow">THE COMMUNITY</p>
+            <h2 id="association-members-heading">Our members</h2>
+            <a class="association-members-link" data-member-directory-link href="/en/associations/">Meet our members <span aria-hidden="true">↗</span></a>
+          </section>
+          <section class="association-section wrap" data-association-links-section hidden aria-labelledby="association-links-heading">
+            <p class="eyebrow">KEEP IN TOUCH</p>
+            <h2 id="association-links-heading">Follow and learn more</h2>
+            <div class="association-link-list" data-association-links></div>
+          </section>
+          <section class="association-section wrap" data-association-contact-section hidden aria-labelledby="association-contact-heading">
+            <p class="eyebrow">GET IN TOUCH</p>
+            <h2 id="association-contact-heading">Contact</h2>
+            <div class="association-contact-list" data-association-contact></div>
+          </section>
+        </div>
+        <section class="association-section wrap" data-member-directory-section hidden aria-labelledby="member-directory-heading">
+          <a class="member-back-link" data-member-back-link href="/en/associations/">Back to association</a>
+          <p class="eyebrow">THE COMMUNITY</p>
+          <h2 id="member-directory-heading">Our members</h2>
+          <div class="association-member-list" data-member-list></div>
         </section>
-        <section class="association-section wrap" aria-labelledby="association-events-heading">
-          <p class="eyebrow">MEETUPS · PROJECTS · WORKSHOPS</p>
-          <h2 id="association-events-heading">Upcoming events</h2>
-          <div class="association-event-list" data-association-events></div>
-        </section>
-        <section class="association-section wrap" data-association-links-section hidden aria-labelledby="association-links-heading">
-          <p class="eyebrow">KEEP IN TOUCH</p>
-          <h2 id="association-links-heading">Follow and learn more</h2>
-          <div class="association-link-list" data-association-links></div>
-        </section>
-        <section class="association-section wrap" data-association-contact-section hidden aria-labelledby="association-contact-heading">
-          <p class="eyebrow">GET IN TOUCH</p>
-          <h2 id="association-contact-heading">Contact</h2>
-          <div class="association-contact-list" data-association-contact></div>
+        <section class="association-section wrap" data-member-profile-section hidden aria-labelledby="member-profile-heading">
+          <a class="member-back-link" data-member-back-link href="/en/associations/">Back to members</a>
+          <p class="eyebrow">THE COMMUNITY</p>
+          <h2 id="member-profile-heading" data-member-name></h2>
+          <div data-member-bio></div>
         </section>
       </div>
     </main>

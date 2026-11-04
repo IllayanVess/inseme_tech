@@ -49,3 +49,17 @@ paired bilingual fields, time-zone metadata, accessible image labels, member
 link consent, event report references, and related policies. It has not been
 applied to the hosted project. Review and push it only after confirming the
 linked project and remote migration history.
+
+`20261104075728_association_admin_management.sql` adds the transaction-safe,
+service-role-only database operations used by the account administration
+function to create an association with its first president and transfer a
+presidency. It is also pending review and application; deploy the matching
+`manage-users` Edge Function only after the migration is applied to the same
+verified project.
+
+`20261104080708_association_member_directory.sql` adds the bilingual member
+profile constraint and atomic service-role-only membership/profile creation
+used by president invitations. It follows the association-model migration and
+must be applied before deploying the matching `manage-users` Edge Function.
+Configure the `SITE_URL` Edge Function secret and Auth redirect allow list
+before sending member invitations.

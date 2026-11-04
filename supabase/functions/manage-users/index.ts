@@ -48,6 +48,34 @@ async function findUser(admin: ReturnType<typeof createClient>, id: string) {
   return data.user
 }
 
+async function findUserByEmail(admin: ReturnType<typeof createClient>, email: string) {
+  const expectedEmail = normalizeEmail(email)
+  for (let page = 1; page <= 100; page += 1) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
+    if (error) throw new Error('Could not verify the selected account.')
+    const match = data.users.find((user) => normalizeEmail(user.email) === expectedEmail)
+    if (match) return match
+    if (data.users.length < 1000) return null
+  }
+  throw new Error('The user list is too large to search safely.')
+}
+
+async function getUserEmails(admin: ReturnType<typeof createClient>, userIds: Set<string>) {
+  const emails = new Map<string, string>()
+  if (!userIds.size) return emails
+
+  for (let page = 1; page <= 100; page += 1) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
+    if (error) throw new Error('Could not load association presidents.')
+    data.users.forEach((user) => {
+      if (userIds.has(user.id)) emails.set(user.id, user.email ?? '')
+    })
+    if (emails.size === userIds.size || data.users.length < 1000) return emails
+  }
+
+  throw new Error('The user list is too large to load safely.')
+}
+
 Deno.serve(async (request: Request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405)
@@ -75,13 +103,25 @@ Deno.serve(async (request: Request) => {
     const caller = verified.user
 
     const rawBody = await request.text()
-    if (rawBody.length > 4096) return json({ error: 'Request is too large.' }, 413)
+    if (rawBody.length > 16384) return json({ error: 'Request is too large.' }, 413)
     const body = JSON.parse(rawBody) as {
       action?: string
       page?: number
       perPage?: number
       userId?: string
       role?: string
+      associationId?: string
+      memberEmail?: string
+      displayName?: string
+      language?: string
+      presidentEmail?: string
+      slug?: string
+      name?: string
+      introductionFr?: string
+      introductionEn?: string
+      missionFr?: string
+      missionEn?: string
+      publicEmail?: string
     }
     const action = body.action
     const admin = createClient(url, serviceKey, {
@@ -108,7 +148,165 @@ Deno.serve(async (request: Request) => {
       return json({ ok: true, role: 'admin' })
     }
 
+    if (action === 'add-association-member') {
+      const associationId = typeof body.associationId === 'string' ? body.associationId : ''
+      const memberEmail = typeof body.memberEmail === 'string' ? normalizeEmail(body.memberEmail) : ''
+      const displayName = typeof body.displayName === 'string' ? body.displayName.trim() : ''
+      const language = body.language === 'en' ? 'en' : 'fr'
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(associationId)
+        || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(memberEmail)
+        || !displayName || displayName.length > 120) {
+        return json({ error: 'Enter a valid association, member email, and display name.' }, 400)
+      }
+
+      if (!callerIsAdmin) {
+        const { data: membership, error: membershipError } = await admin
+          .from('association_memberships')
+          .select('id')
+          .eq('association_id', associationId)
+          .eq('user_id', caller.id)
+          .eq('permission_role', 'president')
+          .eq('status', 'active')
+          .maybeSingle()
+        if (membershipError) return json({ error: 'Could not verify association access.' }, 500)
+        if (!membership) return json({ error: 'President access to this association is required.' }, 403)
+      }
+
+      const existingUser = await findUserByEmail(admin, memberEmail)
+      let memberUser = existingUser
+      let invitationSent = false
+      if (!memberUser) {
+        const configuredSiteUrl = Deno.env.get('SITE_URL')
+        let siteUrl: URL
+        try {
+          siteUrl = new URL(configuredSiteUrl ?? '')
+        } catch {
+          return json({ error: 'Member invitations are not configured on the server.' }, 503)
+        }
+        if (siteUrl.protocol !== 'https:' && siteUrl.hostname !== 'localhost' && siteUrl.hostname !== '127.0.0.1') {
+          return json({ error: 'Member invitations are not configured on the server.' }, 503)
+        }
+
+        const redirectPath = language === 'en' ? '/en/account/' : '/compte/'
+        const { data, error } = await admin.auth.admin.inviteUserByEmail(memberEmail, {
+          redirectTo: new URL(redirectPath, siteUrl).toString(),
+        })
+        if (error || !data.user) return json({ error: 'Could not send the member invitation.' }, 502)
+        memberUser = data.user
+        invitationSent = true
+      }
+
+      const profileSlug = displayName
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 60)
+      const slug = `${profileSlug || 'member'}-${memberUser.id.slice(0, 8)}`
+      const { error } = await admin.rpc('admin_add_association_member', {
+        p_association_id: associationId,
+        p_member_user_id: memberUser.id,
+        p_assigned_by: caller.id,
+        p_profile_slug: slug,
+        p_display_name: displayName,
+      })
+      if (error) return json({ error: 'The account could not be added to this association.' }, 409)
+      return json({ ok: true, invitationSent })
+    }
+
     if (!callerIsAdmin) return json({ error: 'Administrator access is required.' }, 403)
+
+    if (action === 'list-associations') {
+      const { data: associations, error: associationError } = await admin
+        .from('associations')
+        .select('id,slug,name,introduction_fr,introduction_en,mission_fr,mission_en,public_email,public_phone,website_url,theme_accent,visibility,published_at')
+        .order('name', { ascending: true })
+        .limit(100)
+      if (associationError) return json({ error: 'Could not load associations.' }, 500)
+
+      const associationIds = (associations ?? []).map((association) => association.id)
+      const { data: memberships, error: membershipError } = associationIds.length
+        ? await admin
+          .from('association_memberships')
+          .select('association_id,user_id')
+          .in('association_id', associationIds)
+          .eq('permission_role', 'president')
+          .eq('status', 'active')
+        : { data: [], error: null }
+      if (membershipError) return json({ error: 'Could not load association presidents.' }, 500)
+
+      const presidentMemberships = memberships ?? []
+      const emails = await getUserEmails(admin, new Set(presidentMemberships.map((row) => row.user_id)))
+      const presidents = new Map(presidentMemberships.map((row) => [
+        row.association_id,
+        emails.get(row.user_id) ?? '',
+      ]))
+      return json({
+        associations: (associations ?? []).map((association) => ({
+          ...association,
+          presidentEmail: presidents.get(association.id) ?? '',
+        })),
+      })
+    }
+
+    if (action === 'create-association' || action === 'set-president') {
+      const presidentEmail = typeof body.presidentEmail === 'string'
+        ? normalizeEmail(body.presidentEmail)
+        : ''
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(presidentEmail)) {
+        return json({ error: 'Enter the email of a confirmed account.' }, 400)
+      }
+
+      const president = await findUserByEmail(admin, presidentEmail)
+      if (!president || !president.email_confirmed_at) {
+        return json({ error: 'No confirmed account matches that email.' }, 404)
+      }
+
+      if (action === 'create-association') {
+        const slug = typeof body.slug === 'string' ? body.slug.trim().toLowerCase() : ''
+        const name = typeof body.name === 'string' ? body.name.trim() : ''
+        const introductionFr = typeof body.introductionFr === 'string' ? body.introductionFr.trim() : ''
+        const introductionEn = typeof body.introductionEn === 'string' ? body.introductionEn.trim() : ''
+        const missionFr = typeof body.missionFr === 'string' ? body.missionFr.trim() : ''
+        const missionEn = typeof body.missionEn === 'string' ? body.missionEn.trim() : ''
+        const publicEmail = typeof body.publicEmail === 'string' ? body.publicEmail.trim() : ''
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || !name
+          || name.length > 120 || !introductionFr || !introductionEn
+          || introductionFr.length > 2000 || introductionEn.length > 2000
+          || missionFr.length > 2000 || missionEn.length > 2000
+          || Boolean(missionFr) !== Boolean(missionEn)
+          || (publicEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(publicEmail))) {
+          return json({ error: 'Check the association details and both language versions.' }, 400)
+        }
+
+        const { data, error } = await admin.rpc('admin_create_association', {
+          p_slug: slug,
+          p_name: name,
+          p_introduction_fr: introductionFr,
+          p_introduction_en: introductionEn,
+          p_mission_fr: missionFr || null,
+          p_mission_en: missionEn || null,
+          p_public_email: publicEmail || null,
+          p_assigned_by: caller.id,
+          p_president_user_id: president.id,
+        })
+        if (error) return json({ error: 'Could not create the association. Check that its address is unique.' }, 409)
+        return json({ ok: true, associationId: data })
+      }
+
+      const associationId = typeof body.associationId === 'string' ? body.associationId : ''
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(associationId)) {
+        return json({ error: 'Choose a valid association.' }, 400)
+      }
+      const { error } = await admin.rpc('admin_set_association_president', {
+        p_association_id: associationId,
+        p_president_user_id: president.id,
+        p_assigned_by: caller.id,
+      })
+      if (error) return json({ error: 'Could not assign this president.' }, 409)
+      return json({ ok: true, associationId, presidentEmail: president.email })
+    }
 
     if (action === 'list-users') {
       const page = Number.isInteger(body.page) ? Math.max(1, Math.min(10000, body.page!)) : 1

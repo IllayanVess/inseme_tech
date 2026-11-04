@@ -16,6 +16,10 @@ export async function refreshAccountSession() {
   return supabase.auth.refreshSession()
 }
 
+export async function updateAccountPassword(password) {
+  return supabase.auth.updateUser({ password })
+}
+
 export async function callAccountAdministration(action, values = {}) {
   return supabase.functions.invoke('manage-users', {
     body: { action, ...values },

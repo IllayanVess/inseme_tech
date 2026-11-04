@@ -38,9 +38,10 @@ Use a stable association slug as the first path segment after the locale prefix.
 - Event: `/associations/<association_slug>/events/<event_slug>/` and `/en/associations/<association_slug>/events/<event_slug>/`
 - Project: `/associations/<association_slug>/projects/<project_slug>/` and `/en/associations/<association_slug>/projects/<project_slug>/`
 - Announcement: `/associations/<association_slug>/announcements/<announcement_slug>/` and `/en/associations/<association_slug>/announcements/<announcement_slug>/`
+- Member directory: `/associations/<association_slug>/members/` and `/en/associations/<association_slug>/members/`
 - Member: `/associations/<association_slug>/members/<member_slug>/` and `/en/associations/<association_slug>/members/<member_slug>/`
 
-Resolve records using `(association_id, slug)` after resolving the association slug. Do not use query-string routes or user-supplied HTML. The route shells, Netlify rewrites, language switch, and not-found handling still need implementation in the Vite multi-page site.
+Resolve records using `(association_id, slug)` after resolving the association slug. Do not use query-string routes or user-supplied HTML. Member directory and profile routes reuse the bilingual association route shell and Netlify rewrites. Public directory queries include only profiles that are actively consented and owned by active members of a published association.
 
 ## Public and private query paths
 

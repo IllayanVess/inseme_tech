@@ -37,6 +37,47 @@
   to = "/associations/index.html"
   status = 200
 
+# Reuse the association shell for bilingual member directories and profiles.
+[[redirects]]
+  from = "/en/associations/:slug/members"
+  to = "/en/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/en/associations/:slug/members/"
+  to = "/en/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/en/associations/:slug/members/:member"
+  to = "/en/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/en/associations/:slug/members/:member/"
+  to = "/en/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/associations/:slug/members"
+  to = "/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/associations/:slug/members/"
+  to = "/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/associations/:slug/members/:member"
+  to = "/associations/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/associations/:slug/members/:member/"
+  to = "/associations/index.html"
+  status = 200
+
 # Keep client-side routes working if routes are added later.
 [[redirects]]
   from = "/*"

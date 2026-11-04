@@ -1,9 +1,15 @@
 import { isSupabaseConfigured } from '../../lib/supabase.js'
-import { getPublishedAssociationPage } from '../../services/association-content.js'
+import {
+  getPublishedAssociationMembers,
+  getPublishedAssociationPage,
+  getPublishedMemberProfile,
+} from '../../services/association-content.js'
 
 const isEnglish = document.documentElement.lang === 'en'
 const locale = isEnglish ? 'en-GB' : 'fr-FR'
-const pathMatch = window.location.pathname.match(/^\/(en\/)?associations\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/)
+const pathMatch = window.location.pathname.match(/^\/(en\/)?associations\/([a-z0-9]+(?:-[a-z0-9]+)*)(?:\/members(?:\/([a-z0-9]+(?:-[a-z0-9]+)*))?)?\/?$/)
+const isMemberDirectory = Boolean(pathMatch && /\/members\/?$/.test(window.location.pathname))
+const memberSlug = pathMatch?.[3]
 
 const copy = isEnglish
   ? {
@@ -27,6 +33,13 @@ const copy = isEnglish
       home: 'Home', about: 'About us', activities: 'Activities', account: 'My account',
       languageLabel: 'Choose language',
       localSlugError: 'The association address is invalid.',
+      members: 'Our members',
+      memberListEmpty: 'No members have chosen to publish a profile yet.',
+      memberUnavailable: 'This member profile is not available.',
+      backToAssociation: 'Back to association',
+      backToMembers: 'Back to members',
+      meetMembers: 'Meet our members',
+      bio: 'About',
     }
   : {
       loading: 'Chargement de l’association…',
@@ -49,6 +62,13 @@ const copy = isEnglish
       home: 'Accueil', about: 'Qui sommes-nous ?', activities: 'Nos activités', account: 'Mon compte',
       languageLabel: 'Choisir la langue',
       localSlugError: 'L’adresse de cette association est invalide.',
+      members: 'Nos membres',
+      memberListEmpty: 'Aucun membre n’a encore choisi de publier son profil.',
+      memberUnavailable: 'Ce profil de membre est introuvable.',
+      backToAssociation: 'Retour à l’association',
+      backToMembers: 'Retour aux membres',
+      meetMembers: 'Découvrir les membres',
+      bio: 'Présentation',
     }
 
 const appendText = (parent, tag, className, value) => {
@@ -132,6 +152,17 @@ const renderAssociation = (page, data) => {
   if (events.length) events.forEach((event) => eventList.append(createEventCard(event)))
   else appendText(eventList, 'p', 'association-empty', copy.noEvents)
 
+  const memberDirectoryPath = `${isEnglish ? '/en' : ''}/associations/${encodeURIComponent(association.slug)}/members/`
+  const directoryLink = page.querySelector('[data-member-directory-link]')
+  directoryLink.href = memberDirectoryPath
+  directoryLink.textContent = copy.meetMembers
+  const memberDirectorySection = page.querySelector('[data-member-directory-section]')
+  memberDirectorySection.querySelector('[data-member-back-link]').href = `${isEnglish ? '/en' : ''}/associations/${encodeURIComponent(association.slug)}/`
+  memberDirectorySection.querySelector('[data-member-back-link]').textContent = copy.backToAssociation
+  const memberProfileSection = page.querySelector('[data-member-profile-section]')
+  memberProfileSection.querySelector('[data-member-back-link]').href = memberDirectoryPath
+  memberProfileSection.querySelector('[data-member-back-link]').textContent = copy.backToMembers
+
   const linksList = page.querySelector('[data-association-links]')
   socialLinks.forEach((link) => {
     const href = safeHttpsUrl(link.url)
@@ -180,7 +211,7 @@ export function initializeAssociationPage() {
 
   const slug = pathMatch?.[2]
   if (slug) {
-    const frenchPath = `/associations/${slug}/`
+    const frenchPath = `${window.location.pathname.replace(/^\/en(?=\/)/, '').replace(/\/?$/, '/')}`
     const englishPath = `/en${frenchPath}`
     const languageLinks = page.querySelectorAll('[data-language-fr], [data-language-en]')
     languageLinks.forEach((link) => {
@@ -198,8 +229,59 @@ export function initializeAssociationPage() {
     return
   }
 
-  const slugValue = pathMatch[2]
-  getPublishedAssociationPage(slugValue)
-    .then((result) => renderAssociation(page, result))
-    .catch(() => { status.textContent = copy.unavailable })
+  const associationSlug = pathMatch[2]
+  const loadPage = memberSlug
+    ? getPublishedMemberProfile(associationSlug, memberSlug).then((result) => {
+      renderAssociation(page, { association: result.association, socialLinks: [], events: [] })
+      if (!result.association || !result.member) {
+        status.hidden = false
+        status.textContent = copy.memberUnavailable
+        page.querySelector('[data-association-content]').hidden = true
+        page.querySelector('[data-association-hero]').hidden = true
+        return
+      }
+
+      page.querySelector('[data-association-overview]').hidden = true
+      const section = page.querySelector('[data-member-profile-section]')
+      section.hidden = false
+      const name = result.member.display_name
+      const bio = localized(result.member, 'bio')
+      section.querySelector('[data-member-name]').textContent = name
+      const description = bio || name
+      document.title = `${name} — ${result.association.name} — PSTB Tech`
+      document.querySelector('meta[name="description"]')?.setAttribute('content', description)
+      if (bio) appendText(section.querySelector('[data-member-bio]'), 'p', '', bio)
+    })
+    : isMemberDirectory
+      ? getPublishedAssociationMembers(associationSlug).then((result) => {
+        renderAssociation(page, { association: result.association, socialLinks: [], events: [] })
+        if (!result.association) return
+
+        page.querySelector('[data-association-overview]').hidden = true
+        const section = page.querySelector('[data-member-directory-section]')
+        section.hidden = false
+        document.title = `${copy.members} — ${result.association.name} — PSTB Tech`
+        document.querySelector('meta[name="description"]')?.setAttribute('content', `${copy.members} — ${result.association.name}`)
+
+        const list = page.querySelector('[data-member-list]')
+        if (!result.members.length) {
+          appendText(list, 'p', 'association-empty', copy.memberListEmpty)
+          return
+        }
+
+        result.members.forEach((member) => {
+          const card = document.createElement('article')
+          card.className = 'association-member-card'
+          const link = document.createElement('a')
+          link.href = `${window.location.pathname.replace(/\/?$/, '/')}${encodeURIComponent(member.slug)}/`
+          appendText(link, 'h3', '', member.display_name)
+          const bio = localized(member, 'bio')
+          if (bio) appendText(link, 'p', '', bio)
+          card.append(link)
+          list.append(card)
+        })
+      })
+      : getPublishedAssociationPage(associationSlug).then((result) => renderAssociation(page, result))
+
+  loadPage.catch(() => { status.textContent = copy.unavailable })
 }

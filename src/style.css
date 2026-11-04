@@ -342,6 +342,15 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .association-link-list a, .association-contact-list a, .association-contact-list span { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .65rem 1rem; border: 1px solid rgb(165 180 252 / .2); border-radius: 999px; color: var(--fg); text-decoration: none; background: rgb(17 20 35 / .72); }
 .association-link-list a:hover, .association-contact-list a:hover { border-color: var(--association-accent); }
 .association-link-list a:focus-visible, .association-contact-list a:focus-visible { outline: 3px solid var(--association-accent); outline-offset: 3px; }
+.association-members-link, .member-back-link { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; color: #a9eff6; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.association-members-link:focus-visible, .member-back-link:focus-visible { outline: 3px solid var(--association-accent); outline-offset: 4px; }
+.association-member-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px; }
+.association-member-card { min-width: 0; border: 1px solid rgb(165 180 252 / .2); border-radius: 14px; background: rgb(17 20 35 / .72); }
+.association-member-card a { display: block; height: 100%; padding: 20px; color: var(--fg); text-decoration: none; }
+.association-member-card h3 { margin: 0 0 10px; font-size: 20px; }
+.association-member-card p { margin: 0; color: #c1c7df; line-height: 1.6; }
+.association-member-card:hover { border-color: var(--association-accent); }
+.association-member-card a:focus-visible { outline: 3px solid var(--association-accent); outline-offset: 3px; border-radius: 14px; }
 @media (prefers-reduced-motion: no-preference) {
   .association-link-list a, .association-contact-list a { transition: border-color .18s ease, background-color .18s ease; }
 }
@@ -429,8 +438,9 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .account-card h2 { margin: 0 0 22px; font-size: clamp(24px, 3vw, 30px); letter-spacing: -.04em; }
 .account-card > p { color: #c1c7df; font-size: 17px; line-height: 1.6; }
 .account-card label { display: block; margin: 19px 0 8px; color: #e2e6f7; font-size: 17px; font-weight: 500; }
-.account-card input, .account-user-row select { width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid #424968; border-radius: 9px; background: #090c18; color: var(--fg); font: inherit; font-size: 17px; color-scheme: dark; }
-.account-card input:focus-visible, .account-user-row select:focus-visible { outline-offset: 2px; }
+.account-card input, .account-card textarea, .account-card select, .account-user-row select { width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid #424968; border-radius: 9px; background: #090c18; color: var(--fg); font: inherit; font-size: 17px; color-scheme: dark; }
+.account-card textarea { resize: vertical; }
+.account-card input:focus-visible, .account-card textarea:focus-visible, .account-card select:focus-visible, .account-user-row select:focus-visible { outline-offset: 2px; }
 .account-card .account-hint { margin: 10px 0 0; color: #aab1cc; font-size: 16px; }
 .account-submit { min-height: 54px; margin-top: 22px; padding-inline: 21px; font-size: 16px; cursor: pointer; }
 .account-submit:disabled, .account-role-save:disabled, .account-load-more:disabled { cursor: wait; opacity: .65; }
@@ -455,12 +465,38 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .account-role-save, .account-load-more { min-height: 46px; padding: 9px 14px; border: 1px solid #475176; border-radius: 9px; background: #151a30; color: #eef0ff; font: inherit; font-size: 16px; cursor: pointer; }
 .account-role-save:hover, .account-load-more:hover { border-color: var(--accent-2); }
 .account-load-more { margin-top: 16px; }
+.account-workspaces[data-association-editors] { display: grid; gap: 12px; }
+.account-workspaces[data-member-profiles] { display: grid; gap: 12px; }
+.account-workspaces[data-member-profiles] h3 { margin: 0; }
+.account-password-form { max-width: 560px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #303651; }
+.member-profile-consent { display: flex !important; align-items: flex-start; gap: 10px; }
+.member-profile-consent input { flex: 0 0 auto; width: 20px; min-height: 20px; margin: 2px 0 0; accent-color: #77e8f4; }
+.association-member-invite { margin-top: 22px; padding-top: 18px; border-top: 1px solid #303651; }
+.association-member-invite h4 { margin: 0 0 14px; font-size: 18px; }
+.association-member-invite input { min-height: 46px; font-size: 16px; }
+.account-association-editor { padding: 14px; border: 1px solid #2c324b; border-radius: 12px; background: rgb(6 8 17 / .62); }
+.account-association-editor summary { color: #e4e8fa; font-size: 17px; font-weight: 600; cursor: pointer; }
+.account-association-editor form { margin-top: 14px; }
+.account-association-editor label, .association-create-form label, .account-association-row label { font-size: 15px; }
+.account-association-editor input, .account-association-editor textarea, .account-association-editor select, .association-create-form input, .association-create-form textarea, .account-association-row input { min-height: 46px; font-size: 16px; }
+.account-association-list { display: grid; gap: 12px; margin-top: 20px; }
+.account-association-row { padding: 14px; border: 1px solid #2c324b; border-radius: 12px; background: rgb(6 8 17 / .62); }
+.account-association-row h4 { margin: 0 0 8px; font-size: 17px; }
+.account-association-row p { margin: 0 0 12px; overflow-wrap: anywhere; }
+.account-association-row form { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 10px 12px; }
+.account-association-row label { grid-column: 1 / -1; margin: 0; }
+.account-association-row input { grid-column: 1; }
+.account-association-row button { grid-column: 2; }
+.association-create-form .account-submit { display: block; }
+.account-admin .account-workspaces { margin-top: 28px; }
 @media (max-width: 700px) {
   .account-main { min-height: calc(100svh - 70px); padding-block: 50px 65px; }
   .account-forms { gap: 13px; }
   .account-user-row { grid-template-columns: minmax(0, 1fr) auto; }
   .account-user-email { grid-column: 1 / -1; }
   .account-workspace-row { align-items: flex-start; flex-direction: column; }
+  .account-association-row form { grid-template-columns: minmax(0, 1fr); }
+  .account-association-row label, .account-association-row input, .account-association-row button { grid-column: 1; }
 }
 @media (max-width: 600px) {
   .account-page .site-header { height: 70px; padding-inline: 20px; }
