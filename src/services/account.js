@@ -12,6 +12,10 @@ export async function getAccountSession() {
   return supabase.auth.getSession()
 }
 
+export async function getAccountUser() {
+  return supabase.auth.getUser()
+}
+
 export async function refreshAccountSession() {
   return supabase.auth.refreshSession()
 }

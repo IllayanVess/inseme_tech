@@ -12,6 +12,7 @@ import {
 import {
   callAccountAdministration,
   getAccountSession,
+  getAccountUser,
   onAccountChange,
   signIn,
   signOut,
@@ -439,8 +440,12 @@ export function initializeAccountPage() {
       return
     }
     form.reset()
-    const { data } = await getAccountSession()
-    await renderProfile(data.session?.user ?? null)
+    const { data, error: userError } = await getAccountUser()
+    if (userError) {
+      setStatus(copy.genericError)
+      return
+    }
+    await renderProfile(data.user)
   })
 
   root.querySelector('[data-signout]').addEventListener('click', async () => {
@@ -662,19 +667,38 @@ export function initializeAccountPage() {
     if (!error) await loadUsers({ append: false })
   })
 
-  onAccountChange((_event, session) => {
-    const nextUser = session?.user ?? null
-    if (nextUser?.id === currentUser?.id) return
-    window.setTimeout(() => renderProfile(nextUser), 0)
-  })
-
-  setStatus(copy.loading)
-  getAccountSession().then(({ data, error }) => {
+  onAccountChange(async (_event, session) => {
+    if (!session) {
+      if (currentUser) await renderProfile(null)
+      return
+    }
+    const { data, error } = await getAccountUser()
     if (error) {
       setStatus(copy.genericError)
       return
     }
-    renderProfile(data.session?.user ?? null)
+    const nextUser = data.user
+    if (nextUser?.id === currentUser?.id
+      && nextUser.app_metadata?.role === currentUser?.app_metadata?.role) return
+    window.setTimeout(() => renderProfile(nextUser), 0)
+  })
+
+  setStatus(copy.loading)
+  getAccountSession().then(async ({ data, error }) => {
+    if (error) {
+      setStatus(copy.genericError)
+      return
+    }
+    if (!data.session) {
+      await renderProfile(null)
+      return
+    }
+    const { data: userData, error: userError } = await getAccountUser()
+    if (userError) {
+      setStatus(copy.genericError)
+      return
+    }
+    await renderProfile(userData.user)
   })
 }
 
