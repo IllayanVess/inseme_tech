@@ -474,6 +474,16 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .association-member-invite { margin-top: 22px; padding-top: 18px; border-top: 1px solid #303651; }
 .association-member-invite h4 { margin: 0 0 14px; font-size: 18px; }
 .association-member-invite input { min-height: 46px; font-size: 16px; }
+.association-event-manager { margin-top: 22px; padding-top: 18px; border-top: 1px solid #303651; }
+.association-event-manager > h4 { margin: 0 0 14px; font-size: 18px; }
+.association-event-manager > details, .association-event-editor { padding: 12px; border: 1px solid #2c324b; border-radius: 10px; background: rgb(10 12 22 / .7); }
+.association-event-manager summary, .association-event-editor summary { color: #e4e8fa; font-size: 15px; font-weight: 600; cursor: pointer; }
+.association-event-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+.association-event-form > label, .association-event-form > button { grid-column: 1 / -1; }
+.association-event-form .account-submit { justify-self: start; }
+.association-event-list { display: grid; gap: 10px; margin-top: 12px; }
+.association-event-list > p { margin: 0; }
+.association-event-editor .association-event-form { margin-top: 12px; }
 .account-association-editor { padding: 14px; border: 1px solid #2c324b; border-radius: 12px; background: rgb(6 8 17 / .62); }
 .account-association-editor summary { color: #e4e8fa; font-size: 17px; font-weight: 600; cursor: pointer; }
 .account-association-editor form { margin-top: 14px; }
@@ -497,6 +507,7 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
   .account-workspace-row { align-items: flex-start; flex-direction: column; }
   .account-association-row form { grid-template-columns: minmax(0, 1fr); }
   .account-association-row label, .account-association-row input, .account-association-row button { grid-column: 1; }
+  .association-event-form { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 600px) {
   .account-page .site-header { height: 70px; padding-inline: 20px; }

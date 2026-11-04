@@ -84,6 +84,49 @@ export async function updateAssociationPage(associationId, values) {
   return data
 }
 
+export async function getAssociationEvents(associationId) {
+  if (!supabase) throw new Error('Supabase is not configured.')
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('id,association_id,slug,category,title_fr,title_en,summary_fr,summary_en,description_fr,description_en,location_fr,location_en,starts_at,ends_at,timezone_name,event_status,registration_deadline,registration_capacity,publication_status,published_at')
+    .eq('association_id', associationId)
+    .order('starts_at', { ascending: true })
+    .limit(100)
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function createAssociationEvent(associationId, values) {
+  if (!supabase) throw new Error('Supabase is not configured.')
+
+  const { data, error } = await supabase
+    .from('events')
+    .insert({ association_id: associationId, ...values })
+    .select('id')
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateAssociationEvent(associationId, eventId, values) {
+  if (!supabase) throw new Error('Supabase is not configured.')
+
+  const { data, error } = await supabase
+    .from('events')
+    .update(values)
+    .eq('association_id', associationId)
+    .eq('id', eventId)
+    .select('id')
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) throw new Error('Event was not updated.')
+  return data
+}
+
 export async function getMyMemberProfiles() {
   if (!supabase) return null
 

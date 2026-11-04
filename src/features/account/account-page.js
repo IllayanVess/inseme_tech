@@ -1,8 +1,11 @@
 import { isSupabaseConfigured } from '../../lib/supabase.js'
 import {
+  createAssociationEvent,
+  getAssociationEvents,
   getMyMemberProfiles,
   getMyActiveAssociationMemberships,
   updateAssociationPage,
+  updateAssociationEvent,
   updateMyMemberProfile,
 } from '../../services/association-content.js'
 import {
@@ -88,6 +91,42 @@ const pageCopy = {
     saveProfile: 'Enregistrer mon profil',
     profileSaved: 'Profil enregistré.',
     profileSaveError: 'Impossible d’enregistrer le profil. Remplissez les deux biographies ou laissez-les vides.',
+    eventManagement: 'Gestion des événements',
+    createEvent: 'Créer un événement',
+    editEvent: 'Modifier l’événement',
+    saveEvent: 'Enregistrer l’événement',
+    eventSaved: 'Événement enregistré.',
+    eventSaveError: 'Impossible d’enregistrer l’événement. Vérifiez les champs et vos droits.',
+    eventLoadError: 'Impossible de charger les événements de cette association.',
+    noEvents: 'Aucun événement pour le moment.',
+    eventSlug: 'Adresse de l’événement (slug)',
+    eventTitleFr: 'Titre — français',
+    eventTitleEn: 'Title — English',
+    eventSummaryFr: 'Résumé — français',
+    eventSummaryEn: 'Summary — English',
+    eventDescriptionFr: 'Description — français',
+    eventDescriptionEn: 'Description — English',
+    eventLocationFr: 'Lieu — français',
+    eventLocationEn: 'Location — English',
+    eventStartsAt: 'Date et heure de début',
+    eventEndsAt: 'Date et heure de fin (facultatif)',
+    eventTimezone: 'Fuseau horaire IANA',
+    eventCategory: 'Catégorie',
+    eventStatus: 'Statut de l’événement',
+    eventRegistrationDeadline: 'Date limite d’inscription (facultatif)',
+    eventRegistrationCapacity: 'Capacité (facultatif)',
+    eventPublication: 'Publication',
+    invalidEventFields: 'Renseignez le titre en anglais pour publier et complétez les champs facultatifs dans les deux langues.',
+    invalidEventDate: 'Vérifiez les dates et le fuseau horaire. Cette heure locale n’existe peut-être pas.',
+    eventCategories: {
+      programming: 'Programmation',
+      data_ai: 'Données et IA',
+      robotics: 'Robotique',
+      creative_technology: 'Technologies créatives',
+      professional_development: 'Développement professionnel',
+      community: 'Vie étudiante',
+    },
+    eventStatuses: { planned: 'Prévu', open: 'Inscriptions ouvertes', full: 'Complet', cancelled: 'Annulé', completed: 'Terminé' },
     passwordSaved: 'Mot de passe enregistré.',
     passwordError: 'Impossible d’enregistrer le mot de passe. Utilisez au moins 10 caractères.',
     passwordLabel: 'Définir ou modifier le mot de passe',
@@ -165,6 +204,42 @@ const pageCopy = {
     saveProfile: 'Save my profile',
     profileSaved: 'Profile saved.',
     profileSaveError: 'Could not save your profile. Fill in both biographies or leave both blank.',
+    eventManagement: 'Event management',
+    createEvent: 'Create an event',
+    editEvent: 'Edit event',
+    saveEvent: 'Save event',
+    eventSaved: 'Event saved.',
+    eventSaveError: 'Could not save this event. Check the fields and your access.',
+    eventLoadError: 'Could not load this association’s events.',
+    noEvents: 'There are no events yet.',
+    eventSlug: 'Event address (slug)',
+    eventTitleFr: 'Titre — français',
+    eventTitleEn: 'Title — English',
+    eventSummaryFr: 'Summary — French',
+    eventSummaryEn: 'Summary — English',
+    eventDescriptionFr: 'Description — French',
+    eventDescriptionEn: 'Description — English',
+    eventLocationFr: 'Lieu — français',
+    eventLocationEn: 'Location — English',
+    eventStartsAt: 'Start date and time',
+    eventEndsAt: 'End date and time (optional)',
+    eventTimezone: 'IANA time zone',
+    eventCategory: 'Category',
+    eventStatus: 'Event status',
+    eventRegistrationDeadline: 'Registration deadline (optional)',
+    eventRegistrationCapacity: 'Capacity (optional)',
+    eventPublication: 'Publication',
+    invalidEventFields: 'Enter the English title to publish and complete optional fields in both languages.',
+    invalidEventDate: 'Check the dates and time zone. This local time may not exist.',
+    eventCategories: {
+      programming: 'Programming',
+      data_ai: 'Data and AI',
+      robotics: 'Robotics',
+      creative_technology: 'Creative technology',
+      professional_development: 'Professional development',
+      community: 'Community',
+    },
+    eventStatuses: { planned: 'Planned', open: 'Registration open', full: 'Full', cancelled: 'Cancelled', completed: 'Completed' },
     passwordSaved: 'Password saved.',
     passwordError: 'Could not save the password. Use at least 10 characters.',
     passwordLabel: 'Set or change password',
@@ -197,6 +272,23 @@ export function initializeAccountPage() {
   let currentUser = null
 
   const setStatus = (message) => { status.textContent = message }
+  const loadEventEditors = async (container) => {
+    const editors = [...container.querySelectorAll('[data-event-manager]')]
+    await Promise.all(editors.map(async (editor) => {
+      const list = editor.querySelector('[data-event-list]')
+      list.replaceChildren()
+      try {
+        const events = await getAssociationEvents(editor.dataset.associationId)
+        if (!events.length) {
+          appendWorkspaceMessage(list, copy.noEvents)
+          return
+        }
+        events.forEach((event) => list.append(createEventEditor(event, copy)))
+      } catch {
+        appendWorkspaceMessage(list, copy.eventLoadError)
+      }
+    }))
+  }
 
   if (!isSupabaseConfigured) {
     setStatus(copy.unavailable)
@@ -262,6 +354,7 @@ export function initializeAccountPage() {
           associationEditors.append(createAssociationEditor(association, copy))
         }
       })
+      await loadEventEditors(associationEditors)
     } catch {
       appendWorkspaceMessage(workspaceList, copy.workspaceLoadError)
     }
@@ -300,6 +393,7 @@ export function initializeAccountPage() {
       associationList.append(createAssociationManagementRow(association, copy))
       associationEditors.append(createAssociationEditor(association, copy))
     })
+    await loadEventEditors(associationEditors)
   }
 
   const loadUsers = async ({ append }) => {
@@ -422,6 +516,40 @@ export function initializeAccountPage() {
       }
       inviteForm.reset()
       setStatus(data?.invitationSent ? copy.memberInvited : copy.memberAdded)
+      return
+    }
+
+    const eventForm = event.target.closest('[data-event-form]')
+    if (eventForm) {
+      event.preventDefault()
+      const submit = eventForm.querySelector('[type="submit"]')
+      let values
+      try {
+        values = getEventFormValues(eventForm)
+      } catch {
+        setStatus(copy.invalidEventDate)
+        return
+      }
+      if (!values) {
+        setStatus(copy.invalidEventFields)
+        return
+      }
+      submit.disabled = true
+      setStatus(copy.loading)
+      try {
+        const eventId = eventForm.dataset.eventId
+        if (eventId) {
+          await updateAssociationEvent(eventForm.dataset.associationId, eventId, values)
+        } else {
+          await createAssociationEvent(eventForm.dataset.associationId, values)
+        }
+        setStatus(copy.eventSaved)
+        await loadEventEditors(associationEditors)
+      } catch {
+        setStatus(copy.eventSaveError)
+      } finally {
+        submit.disabled = false
+      }
       return
     }
 
@@ -698,7 +826,262 @@ function createAssociationEditor(association, copy) {
   form.append(save)
   details.append(form)
   details.append(createMemberInviteForm(association, copy))
+  details.append(createEventManager(association, copy))
   return details
+}
+
+function createEventManager(association, copy) {
+  const section = document.createElement('section')
+  section.className = 'association-event-manager'
+  section.dataset.eventManager = ''
+  section.dataset.associationId = association.id
+
+  const heading = document.createElement('h4')
+  heading.textContent = copy.eventManagement
+  const createForm = createEventForm(association.id, copy)
+  const createTitle = document.createElement('summary')
+  createTitle.textContent = copy.createEvent
+  const createPanel = document.createElement('details')
+  createPanel.open = false
+  createPanel.append(createTitle, createForm)
+
+  const list = document.createElement('div')
+  list.className = 'association-event-list'
+  list.dataset.eventList = ''
+  section.append(heading, createPanel, list)
+  return section
+}
+
+function createEventEditor(event, copy) {
+  const details = document.createElement('details')
+  details.className = 'association-event-editor'
+  const summary = document.createElement('summary')
+  summary.textContent = `${copy.editEvent} — ${event.title_fr}`
+  details.append(summary, createEventForm(event.association_id, copy, event))
+  return details
+}
+
+function createEventForm(associationId, copy, event = null) {
+  const form = document.createElement('form')
+  form.className = 'association-event-form'
+  form.dataset.eventForm = ''
+  form.dataset.associationId = associationId
+  form.dataset.publishedAt = event?.published_at ?? ''
+  if (event) form.dataset.eventId = event.id
+
+  const prefix = `event-${associationId}-${event?.id ?? 'new'}`
+  const addInput = (name, labelText, { type = 'text', value = '', required = false, maxLength, min } = {}) => {
+    const label = document.createElement('label')
+    label.htmlFor = `${prefix}-${name}`
+    label.textContent = labelText
+    const input = document.createElement('input')
+    input.id = label.htmlFor
+    input.name = name
+    input.type = type
+    input.value = value ?? ''
+    input.required = required
+    if (maxLength) input.maxLength = maxLength
+    if (min !== undefined) input.min = String(min)
+    form.append(label, input)
+    return input
+  }
+  const addTextarea = (name, labelText, value, maxLength) => {
+    const label = document.createElement('label')
+    label.htmlFor = `${prefix}-${name}`
+    label.textContent = labelText
+    const textarea = document.createElement('textarea')
+    textarea.id = label.htmlFor
+    textarea.name = name
+    textarea.value = value ?? ''
+    textarea.rows = 3
+    textarea.maxLength = maxLength
+    form.append(label, textarea)
+  }
+  const addSelect = (name, labelText, options, value) => {
+    const label = document.createElement('label')
+    label.htmlFor = `${prefix}-${name}`
+    label.textContent = labelText
+    const select = document.createElement('select')
+    select.id = label.htmlFor
+    select.name = name
+    Object.entries(options).forEach(([optionValue, optionLabel]) => {
+      const option = document.createElement('option')
+      option.value = optionValue
+      option.textContent = optionLabel
+      option.selected = value === optionValue
+      select.append(option)
+    })
+    form.append(label, select)
+  }
+
+  const slugInput = addInput('slug', copy.eventSlug, {
+    value: event?.slug ?? '',
+    required: true,
+    maxLength: 120,
+  })
+  slugInput.pattern = '[a-z0-9]+(-[a-z0-9]+)*'
+  const titleFrInput = addInput('title_fr', copy.eventTitleFr, {
+    value: event?.title_fr,
+    required: true,
+    maxLength: 160,
+  })
+  if (!event) {
+    slugInput.addEventListener('input', () => { slugInput.dataset.edited = 'true' })
+    titleFrInput.addEventListener('input', () => {
+      if (!slugInput.dataset.edited) slugInput.value = makeSlug(titleFrInput.value)
+    })
+  }
+
+  addInput('title_en', copy.eventTitleEn, { value: event?.title_en, maxLength: 160 })
+  addTextarea('summary_fr', copy.eventSummaryFr, event?.summary_fr, 1000)
+  addTextarea('summary_en', copy.eventSummaryEn, event?.summary_en, 1000)
+  addTextarea('description_fr', copy.eventDescriptionFr, event?.description_fr, 5000)
+  addTextarea('description_en', copy.eventDescriptionEn, event?.description_en, 5000)
+  addInput('location_fr', copy.eventLocationFr, { value: event?.location_fr, maxLength: 240 })
+  addInput('location_en', copy.eventLocationEn, { value: event?.location_en, maxLength: 240 })
+  addInput('starts_at', copy.eventStartsAt, {
+    type: 'datetime-local',
+    value: eventDateForInput(event?.starts_at, event?.timezone_name ?? 'Europe/Paris'),
+    required: true,
+  })
+  addInput('ends_at', copy.eventEndsAt, {
+    type: 'datetime-local',
+    value: eventDateForInput(event?.ends_at, event?.timezone_name ?? 'Europe/Paris'),
+  })
+  addInput('timezone_name', copy.eventTimezone, {
+    value: event?.timezone_name ?? 'Europe/Paris',
+    required: true,
+    maxLength: 80,
+  })
+  addSelect('category', copy.eventCategory, copy.eventCategories, event?.category ?? 'programming')
+  addSelect('event_status', copy.eventStatus, copy.eventStatuses, event?.event_status ?? 'planned')
+  addInput('registration_deadline', copy.eventRegistrationDeadline, {
+    type: 'datetime-local',
+    value: eventDateForInput(event?.registration_deadline, event?.timezone_name ?? 'Europe/Paris'),
+  })
+  addInput('registration_capacity', copy.eventRegistrationCapacity, {
+    type: 'number',
+    value: event?.registration_capacity,
+    min: 1,
+  })
+  addSelect('publication_status', copy.eventPublication, {
+    draft: copy.draft,
+    published: copy.published,
+    archived: copy.archived,
+  }, event?.publication_status ?? 'draft')
+
+  const save = document.createElement('button')
+  save.className = 'button button-dark account-submit'
+  save.type = 'submit'
+  save.textContent = copy.saveEvent
+  form.append(save)
+  return form
+}
+
+function getEventFormValues(form) {
+  const values = new FormData(form)
+  const publicationStatus = values.get('publication_status')
+  const titleFr = values.get('title_fr').trim()
+  const titleEn = values.get('title_en').trim()
+  const pairedFields = ['summary', 'description', 'location']
+  if (!titleFr || (publicationStatus === 'published' && !titleEn)
+    || pairedFields.some((field) => Boolean(values.get(`${field}_fr`).trim()) !== Boolean(values.get(`${field}_en`).trim()))) {
+    return null
+  }
+
+  const timezone = values.get('timezone_name').trim()
+  const startsAt = zonedDateTimeToIso(values.get('starts_at'), timezone)
+  const endsAt = zonedDateTimeToIso(values.get('ends_at'), timezone)
+  const registrationDeadline = zonedDateTimeToIso(values.get('registration_deadline'), timezone)
+  const registrationCapacity = values.get('registration_capacity')
+  const publishedAt = form.dataset.publishedAt
+  return {
+    slug: values.get('slug').trim(),
+    category: values.get('category'),
+    title_fr: titleFr,
+    title_en: titleEn || null,
+    summary_fr: values.get('summary_fr').trim() || null,
+    summary_en: values.get('summary_en').trim() || null,
+    description_fr: values.get('description_fr').trim() || null,
+    description_en: values.get('description_en').trim() || null,
+    location_fr: values.get('location_fr').trim() || null,
+    location_en: values.get('location_en').trim() || null,
+    starts_at: startsAt,
+    ends_at: endsAt,
+    timezone_name: timezone,
+    event_status: values.get('event_status'),
+    registration_deadline: registrationDeadline,
+    registration_capacity: registrationCapacity ? Number(registrationCapacity) : null,
+    publication_status: publicationStatus,
+    published_at: publicationStatus === 'published'
+      ? (publishedAt || new Date().toISOString())
+      : publicationStatus === 'draft' ? null : publishedAt || null,
+  }
+}
+
+function makeSlug(value) {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 120)
+}
+
+function eventDateForInput(value, timezone) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date)
+  const values = Object.fromEntries(parts.map(({ type, value: partValue }) => [type, partValue]))
+  return `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}`
+}
+
+function zonedDateTimeToIso(value, timezone) {
+  if (!value) return null
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/)
+  if (!match) throw new Error('Invalid event date.')
+  const expected = match.slice(1).map(Number)
+  const [year, month, day, hour, minute] = expected
+  const target = Date.UTC(year, month - 1, day, hour, minute)
+  if (!Number.isFinite(target)) throw new Error('Invalid event date.')
+
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  })
+  let timestamp = target
+  let actual
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const parts = Object.fromEntries(formatter.formatToParts(new Date(timestamp))
+      .map(({ type, value: partValue }) => [type, partValue]))
+    actual = [parts.year, parts.month, parts.day, parts.hour, parts.minute].map(Number)
+    const represented = Date.UTC(...actual.slice(0, 3).map((part, index) => index === 1 ? part - 1 : part), actual[3], actual[4], Number(parts.second))
+    const adjustment = target - represented
+    timestamp += adjustment
+    if (adjustment === 0) break
+  }
+
+  const finalParts = Object.fromEntries(formatter.formatToParts(new Date(timestamp))
+    .map(({ type, value: partValue }) => [type, partValue]))
+  actual = [finalParts.year, finalParts.month, finalParts.day, finalParts.hour, finalParts.minute].map(Number)
+  if (expected.some((part, index) => part !== actual[index])) throw new Error('Invalid local time for event time zone.')
+  return new Date(timestamp).toISOString()
 }
 
 function createMemberInviteForm(association, copy) {
