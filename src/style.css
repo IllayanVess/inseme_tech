@@ -494,8 +494,28 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .association-event-manager > details, .association-event-editor { padding: 12px; border: 1px solid #2c324b; border-radius: 10px; background: rgb(10 12 22 / .7); }
 .association-event-manager summary, .association-event-editor summary { color: #e4e8fa; font-size: 15px; font-weight: 600; cursor: pointer; }
 .association-event-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
-.association-event-form > label, .association-event-form > button { grid-column: 1 / -1; }
+.association-event-form > label, .association-event-form > button, .association-event-form > .association-event-preview, .association-event-form > .association-event-actions { grid-column: 1 / -1; }
 .association-event-form .account-submit { justify-self: start; }
+.association-event-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 8px 0; }
+.association-event-actions button { min-height: 44px; }
+.association-event-preview { margin: 8px 0; padding: 16px; border: 1px solid rgb(129 140 248 / .32); border-radius: 12px; background: linear-gradient(145deg, rgb(20 23 42 / .92), rgb(8 10 19 / .96)); }
+.association-event-preview[hidden] { display: none; }
+.association-event-preview-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.association-event-preview-header h4 { margin: 0; color: #e8ebff; font-size: 16px; }
+.event-preview-language { display: flex; gap: 6px; }
+.event-preview-language-button { min-width: 42px; min-height: 38px; border: 1px solid #424968; border-radius: 8px; background: #0b0e1b; color: #c5cbe0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.event-preview-language-button.is-selected { border-color: #7c83f6; background: rgb(99 102 241 / .2); color: #f2f2ff; }
+.association-event-preview-card { padding: 20px; border: 1px solid rgb(165 180 252 / .16); border-radius: 1rem; background: linear-gradient(145deg, rgb(24 27 48 / .88), rgb(10 12 22 / .9)); }
+.association-event-preview-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.association-event-preview-badges span { padding: 5px 9px; border: 1px solid rgb(129 140 248 / .24); border-radius: 999px; color: #cbd0ff; font-size: 12px; }
+.association-event-preview-card h5 { margin: 14px 0 8px; color: #f1f3ff; font-size: clamp(20px, 3vw, 26px); line-height: 1.2; }
+.association-event-preview-card h5[data-missing="true"] { color: #ffcf8a; font-size: 17px; }
+.association-event-preview-card p { margin: 8px 0; color: #b4bad3; line-height: 1.65; white-space: pre-wrap; }
+.association-event-preview-summary { color: #e0e5f8 !important; font-size: 16px; }
+.association-event-preview-details { display: grid; gap: 8px; margin: 18px 0 0; padding-top: 14px; border-top: 1px solid rgb(165 180 252 / .14); }
+.association-event-preview-details > div { display: grid; grid-template-columns: minmax(120px, .45fr) minmax(0, 1fr); gap: 12px; }
+.association-event-preview-details dt { color: #929ab9; }
+.association-event-preview-details dd { margin: 0; color: #e1e5f7; overflow-wrap: anywhere; }
 .association-event-list { display: grid; gap: 10px; margin-top: 12px; }
 .association-event-list > p { margin: 0; }
 .association-event-editor .association-event-form { margin-top: 12px; }

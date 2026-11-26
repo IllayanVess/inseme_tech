@@ -121,6 +121,18 @@ const pageCopy = {
     eventRegistrationDeadline: 'Date limite d’inscription (facultatif)',
     eventRegistrationCapacity: 'Capacité (facultatif)',
     eventPublication: 'Publication',
+    previewEvent: 'Prévisualiser',
+    hideEventPreview: 'Masquer l’aperçu',
+    eventPreviewTitle: 'Aperçu de l’événement',
+    eventPreviewLanguage: 'Langue de l’aperçu',
+    eventPreviewNotProvided: 'Non renseigné',
+    eventPreviewMissingTitle: 'Titre à compléter avant publication',
+    eventPreviewLocation: 'Lieu',
+    eventPreviewStart: 'Début',
+    eventPreviewEnd: 'Fin',
+    eventPreviewTimezone: 'Fuseau horaire',
+    eventPreviewRegistrationDeadline: 'Date limite d’inscription',
+    eventPreviewCapacity: 'Capacité',
     invalidEventFields: 'Renseignez le titre en anglais pour publier et complétez les champs facultatifs dans les deux langues.',
     invalidEventDate: 'Vérifiez les dates et le fuseau horaire. Cette heure locale n’existe peut-être pas.',
     eventCategories: {
@@ -236,6 +248,18 @@ const pageCopy = {
     eventRegistrationDeadline: 'Registration deadline (optional)',
     eventRegistrationCapacity: 'Capacity (optional)',
     eventPublication: 'Publication',
+    previewEvent: 'Preview event',
+    hideEventPreview: 'Hide preview',
+    eventPreviewTitle: 'Event preview',
+    eventPreviewLanguage: 'Preview language',
+    eventPreviewNotProvided: 'Not provided',
+    eventPreviewMissingTitle: 'Add a title before publishing',
+    eventPreviewLocation: 'Location',
+    eventPreviewStart: 'Starts',
+    eventPreviewEnd: 'Ends',
+    eventPreviewTimezone: 'Time zone',
+    eventPreviewRegistrationDeadline: 'Registration deadline',
+    eventPreviewCapacity: 'Capacity',
     invalidEventFields: 'Enter the English title to publish and complete optional fields in both languages.',
     invalidEventDate: 'Check the dates and time zone. This local time may not exist.',
     eventCategories: {
@@ -726,12 +750,145 @@ function createEventForm(associationId, copy, event = null) {
     archived: copy.archived,
   }, event?.publication_status ?? 'draft')
 
+  const preview = document.createElement('section')
+  preview.className = 'association-event-preview'
+  preview.id = `${prefix}-preview`
+  preview.hidden = true
+  preview.setAttribute('aria-labelledby', `${prefix}-preview-title`)
+
+  const previewHeader = document.createElement('div')
+  previewHeader.className = 'association-event-preview-header'
+  const previewTitle = document.createElement('h4')
+  previewTitle.id = `${prefix}-preview-title`
+  previewTitle.textContent = copy.eventPreviewTitle
+  const languageGroup = document.createElement('div')
+  languageGroup.className = 'event-preview-language'
+  languageGroup.setAttribute('role', 'group')
+  languageGroup.setAttribute('aria-label', copy.eventPreviewLanguage)
+  const previewContent = document.createElement('div')
+  previewContent.className = 'association-event-preview-content'
+  previewHeader.append(previewTitle, languageGroup)
+  preview.append(previewHeader, previewContent)
+
+  let previewLanguage = document.documentElement.lang === 'en' ? 'en' : 'fr'
+  const languageButtons = []
+  for (const language of ['fr', 'en']) {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'event-preview-language-button'
+    button.textContent = language.toUpperCase()
+    button.lang = language
+    button.setAttribute('aria-pressed', String(language === previewLanguage))
+    button.addEventListener('click', () => {
+      previewLanguage = language
+      languageButtons.forEach((item) => {
+        const selected = item.lang === previewLanguage
+        item.setAttribute('aria-pressed', String(selected))
+        item.classList.toggle('is-selected', selected)
+      })
+      renderEventPreview(form, previewContent, previewLanguage, copy)
+    })
+    button.classList.toggle('is-selected', language === previewLanguage)
+    languageGroup.append(button)
+    languageButtons.push(button)
+  }
+
+  const actions = document.createElement('div')
+  actions.className = 'association-event-actions'
+  const previewButton = document.createElement('button')
+  previewButton.className = 'button button-dark event-preview-toggle'
+  previewButton.type = 'button'
+  previewButton.textContent = copy.previewEvent
+  previewButton.setAttribute('aria-expanded', 'false')
+  previewButton.setAttribute('aria-controls', preview.id)
+  previewButton.addEventListener('click', () => {
+    preview.hidden = !preview.hidden
+    previewButton.textContent = preview.hidden ? copy.previewEvent : copy.hideEventPreview
+    previewButton.setAttribute('aria-expanded', String(!preview.hidden))
+    if (!preview.hidden) renderEventPreview(form, previewContent, previewLanguage, copy)
+  })
+
   const save = document.createElement('button')
   save.className = 'button button-dark account-submit'
   save.type = 'submit'
   save.textContent = copy.saveEvent
-  form.append(save)
+  actions.append(previewButton, save)
+  form.append(preview, actions)
+  form.addEventListener('input', () => {
+    if (!preview.hidden) renderEventPreview(form, previewContent, previewLanguage, copy)
+  })
+  form.addEventListener('change', () => {
+    if (!preview.hidden) renderEventPreview(form, previewContent, previewLanguage, copy)
+  })
   return form
+}
+
+function renderEventPreview(form, container, language, copy) {
+  const values = new FormData(form)
+  const locale = language === 'en' ? 'en-GB' : 'fr-FR'
+  const timezone = values.get('timezone_name').trim()
+  const localized = (field) => values.get(`${field}_${language}`).trim()
+  const card = document.createElement('article')
+  card.className = 'association-event-preview-card'
+
+  const badges = document.createElement('div')
+  badges.className = 'association-event-preview-badges'
+  const category = document.createElement('span')
+  category.textContent = copy.eventCategories[values.get('category')] || copy.eventCategories.programming
+  const status = document.createElement('span')
+  status.textContent = copy.eventStatuses[values.get('event_status')] || copy.eventStatuses.planned
+  badges.append(category, status)
+
+  const title = document.createElement('h5')
+  title.textContent = localized('title') || copy.eventPreviewMissingTitle
+  if (!localized('title')) title.dataset.missing = 'true'
+  card.append(badges, title)
+
+  for (const field of ['summary', 'description']) {
+    const value = localized(field)
+    if (!value) continue
+    const paragraph = document.createElement('p')
+    paragraph.className = `association-event-preview-${field}`
+    paragraph.textContent = value
+    card.append(paragraph)
+  }
+
+  const details = document.createElement('dl')
+  details.className = 'association-event-preview-details'
+  const formatDate = (value) => {
+    if (!value) return copy.eventPreviewNotProvided
+    try {
+      const iso = zonedDateTimeToIso(value, timezone)
+      return new Intl.DateTimeFormat(locale, {
+        dateStyle: 'long',
+        timeStyle: 'short',
+        timeZone: timezone,
+      }).format(new Date(iso))
+    } catch {
+      return copy.invalidEventDate
+    }
+  }
+  const addDetail = (label, value) => {
+    const row = document.createElement('div')
+    const term = document.createElement('dt')
+    term.textContent = label
+    const description = document.createElement('dd')
+    description.textContent = value || copy.eventPreviewNotProvided
+    row.append(term, description)
+    details.append(row)
+  }
+  addDetail(copy.eventPreviewStart, formatDate(values.get('starts_at')))
+  if (values.get('ends_at')) addDetail(copy.eventPreviewEnd, formatDate(values.get('ends_at')))
+  addDetail(copy.eventPreviewTimezone, timezone || copy.eventPreviewNotProvided)
+  addDetail(copy.eventPreviewLocation, localized('location'))
+  if (values.get('registration_deadline')) {
+    addDetail(copy.eventPreviewRegistrationDeadline, formatDate(values.get('registration_deadline')))
+  }
+  if (values.get('registration_capacity')) {
+    addDetail(copy.eventPreviewCapacity, values.get('registration_capacity'))
+  }
+  card.append(details)
+  container.replaceChildren(card)
 }
 
 function getEventFormValues(form) {
