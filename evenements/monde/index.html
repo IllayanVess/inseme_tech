@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Suivez dans le monde entier les conférences et rencontres majeures sur l’intelligence artificielle et les technologies." />
+    <title>Agenda mondial des événements tech et IA — PSTB Tech</title>
+  </head>
+  <body class="watch-page events-page">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="PSTB Tech, accueil"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
+        <a class="nav-link" href="/">Accueil</a>
+        <a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a>
+        <a class="nav-link" href="/associations/">Associations</a>
+        <a class="nav-cta" href="/activites/">Activités <span aria-hidden="true">↗</span></a>
+        <a class="nav-link" href="/veille/">Veille IA</a>
+        <a class="nav-link" href="/evenements/">Agenda tech</a>
+        <a class="nav-link" href="/compte/">Mon compte</a>
+        <div class="language-switch" aria-label="Choisir la langue"><a class="selected" href="/evenements/monde/" lang="fr" aria-current="page">FR</a><span aria-hidden="true">/</span><a href="/en/events/world/" lang="en">EN</a></div>
+      </nav>
+    </header>
+
+    <main class="watch-main events-main" data-events-page data-event-scope="world">
+      <section class="watch-hero events-hero wrap">
+        <p class="eyebrow">AGENDA TECH · INTERNATIONAL</p>
+        <h1>Les rendez-vous<br /><em>qui font avancer la tech.</em></h1>
+        <p class="watch-lede">Un agenda mondial de conférences et rencontres sur l’IA, le développement, le cloud, la cybersécurité et les technologies. Les événements passés disparaissent automatiquement du flux.</p>
+        <nav class="event-scope-switch" aria-label="Choisir un agenda">
+          <a href="/evenements/">Paris & Grand Paris</a>
+          <a class="is-selected" href="/evenements/monde/" aria-current="page">Monde entier</a>
+        </nav>
+        <div class="watch-hero-note"><span class="watch-live-dot" aria-hidden="true"></span><span data-events-updated-at>Chargement de l’agenda…</span><span class="watch-update-frequency">Actualisation toutes les 15 min</span></div>
+      </section>
+
+      <div class="events-layout wrap">
+        <section class="watch-panel events-browser" aria-labelledby="events-title">
+          <div class="watch-panel-heading">
+            <div><p class="eyebrow">CONFÉRENCES & RENCONTRES</p><h2 id="events-title">À l’<em>agenda</em></h2></div>
+            <button class="watch-refresh" type="button" data-events-refresh><span aria-hidden="true">↻</span><span>Actualiser</span></button>
+          </div>
+          <div class="events-view-switch" role="group" aria-label="Afficher les événements">
+            <button type="button" data-event-view="upcoming" aria-pressed="true">À venir</button>
+            <button type="button" data-event-view="saved" aria-pressed="false">Suivis</button>
+          </div>
+          <div class="events-filters">
+            <label class="events-filter-control events-filter-search" for="world-event-search">Rechercher<input id="world-event-search" type="search" data-event-search placeholder="Titre, ville ou thème" autocomplete="off" /></label>
+            <label class="events-filter-control" for="world-event-category">Thème<select id="world-event-category" data-event-category-filter><option value="all">Tous les thèmes</option></select></label>
+            <label class="events-filter-control" for="world-event-month">Mois<select id="world-event-month" data-event-month-filter><option value="all">Tous les mois</option></select></label>
+            <span class="events-result-count" data-events-count aria-live="polite"></span>
+          </div>
+          <p class="events-feed-status" data-events-status role="status" aria-live="polite">Chargement des événements…</p>
+          <div class="event-list" data-events-results aria-live="polite"></div>
+        </section>
+
+        <aside class="watch-panel events-aside" aria-labelledby="events-source-title">
+          <p class="eyebrow">SOURCES & MISE À JOUR</p>
+          <h2 id="events-source-title">L’agenda <em>vivant</em></h2>
+          <p>Les événements proviennent d’un agenda public spécialisé qui couvre conférences et rencontres tech dans le monde. La source actualise ses données chaque jour ; cette page vérifie le flux toutes les 15 minutes.</p>
+          <a class="events-source-link" href="https://ip73.fr/evenements/" target="_blank" rel="noopener noreferrer">Voir l’agenda IP73 <span aria-hidden="true">↗</span></a>
+          <p class="events-source-note">Les dates et lieux peuvent changer. Ouvrez le lien de l’organisateur sur chaque fiche avant de réserver. Les événements suivis sont enregistrés dans ce navigateur uniquement.</p>
+          <p class="events-data-credit">Données d’événements créditées à <a href="https://ip73.fr/" target="_blank" rel="noopener noreferrer">IP73</a>.</p>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="site-footer wrap"><a class="footer-brand" href="/">PSTB<span> Tech</span></a><span>Association étudiante · PSTB</span><a href="/evenements/">Agenda Paris <span aria-hidden="true">↗</span></a><span>© PSTB Tech</span></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

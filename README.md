@@ -63,6 +63,14 @@ The current migrations are incremental from the existing hosted schema; they are
 - The new migration is prepared at `supabase/migrations/20261126194006_ai_watch_notifications.sql`, with the declarative source in `supabase/schemas/public/zz_ai_watch.sql`. Before applying it, verify the linked Supabase project and migration history, then review `npx supabase db push --dry-run --linked`. The hosted database has not been changed as part of this implementation.
 - Use `npx netlify dev` for local requests to `/api/ai-news` and `/api/push-key`. Netlify does not run scheduled functions on a local timer; use a published deploy to receive scheduled notifications.
 
+## Live technology event tracker
+
+- Paris and worldwide calendars are available in French and English at `/evenements/`, `/evenements/monde/`, `/en/events/`, and `/en/events/world/`.
+- `netlify/functions/tech-events.mjs` reads the public IP73 iCalendar feed and serves filtered results through `/api/tech-events?scope=paris|world`. It needs no API key. The Paris view includes Paris and Greater Paris locations; the worldwide view lists all upcoming feed entries.
+- The browser refreshes visible pages every 15 minutes and refreshes when a previously idle tab becomes active. Netlify caches successful feed responses briefly; IP73 says its source calendar is updated daily. The displayed check time is when the Netlify endpoint fetched the feed.
+- Verify the event's organizer page before travel because venue and date details can change. Event listings link to their event page when provided and credit [IP73](https://ip73.fr/evenements/).
+- Saved events are stored in the current browser only. No event data or user tracking records are written to Supabase.
+
 ## Licensing
 
 Licensing in this repository is separated by content type:

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Follow technology and AI conferences, meetups and events across Paris and Greater Paris from a public, automatically refreshed calendar." />
+    <title>Tech and AI events in Paris — PSTB Tech</title>
+  </head>
+  <body class="watch-page events-page">
+    <header class="site-header">
+      <a class="wordmark" href="/en/" aria-label="PSTB Tech, home"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <a class="nav-link" href="/en/">Home</a>
+        <a class="nav-link" href="/en/about/">About us</a>
+        <a class="nav-link" href="/en/associations/">Associations</a>
+        <a class="nav-cta" href="/en/activities/">Activities <span aria-hidden="true">↗</span></a>
+        <a class="nav-link" href="/en/watch/">AI watch</a>
+        <a class="nav-link active" href="/en/events/" aria-current="page">Tech events</a>
+        <a class="nav-link" href="/en/account/">My account</a>
+        <div class="language-switch" aria-label="Choose language"><a href="/evenements/" lang="fr">FR</a><span aria-hidden="true">/</span><a class="selected" href="/en/events/" lang="en" aria-current="page">EN</a></div>
+      </nav>
+    </header>
+
+    <main class="watch-main events-main" data-events-page data-event-scope="paris">
+      <section class="watch-hero events-hero wrap">
+        <p class="eyebrow">TECH EVENTS · PARIS & GREATER PARIS</p>
+        <h1>Where tech meets.<br /><em>In Paris.</em></h1>
+        <p class="watch-lede">Conferences, meetups and events about AI, development, cloud and cybersecurity. This calendar updates automatically from a public event feed.</p>
+        <nav class="event-scope-switch" aria-label="Choose an event calendar">
+          <a class="is-selected" href="/en/events/" aria-current="page">Paris & Greater Paris</a>
+          <a href="/en/events/world/">Worldwide <span aria-hidden="true">↗</span></a>
+        </nav>
+        <div class="watch-hero-note"><span class="watch-live-dot" aria-hidden="true"></span><span data-events-updated-at>Loading the event calendar…</span><span class="watch-update-frequency">Refreshes every 15 min</span></div>
+      </section>
+
+      <div class="events-layout wrap">
+        <section class="watch-panel events-browser" aria-labelledby="events-title">
+          <div class="watch-panel-heading">
+            <div><p class="eyebrow">PARIS · PUBLIC EVENTS</p><h2 id="events-title">On the <em>calendar</em></h2></div>
+            <button class="watch-refresh" type="button" data-events-refresh><span aria-hidden="true">↻</span><span>Refresh now</span></button>
+          </div>
+          <div class="events-view-switch" role="group" aria-label="Choose which events to show">
+            <button type="button" data-event-view="upcoming" aria-pressed="true">Upcoming</button>
+            <button type="button" data-event-view="saved" aria-pressed="false">Saved</button>
+          </div>
+          <div class="events-filters">
+            <label class="events-filter-control events-filter-search" for="paris-event-search">Search<input id="paris-event-search" type="search" data-event-search placeholder="Title, city or topic" autocomplete="off" /></label>
+            <label class="events-filter-control" for="paris-event-category">Topic<select id="paris-event-category" data-event-category-filter><option value="all">All topics</option></select></label>
+            <label class="events-filter-control" for="paris-event-month">Month<select id="paris-event-month" data-event-month-filter><option value="all">Any month</option></select></label>
+            <span class="events-result-count" data-events-count aria-live="polite"></span>
+          </div>
+          <p class="events-feed-status" data-events-status role="status" aria-live="polite">Loading events…</p>
+          <div class="event-list" data-events-results aria-live="polite"></div>
+        </section>
+
+        <aside class="watch-panel events-aside" aria-labelledby="events-source-title">
+          <p class="eyebrow">SOURCES & UPDATES</p>
+          <h2 id="events-source-title">A living <em>calendar</em></h2>
+          <p>Events come from a public specialist calendar covering technology conferences and meetups worldwide. The source refreshes its data daily; this page checks the feed every 15 minutes.</p>
+          <a class="events-source-link" href="https://ip73.fr/evenements/" target="_blank" rel="noopener noreferrer">Open the IP73 calendar <span aria-hidden="true">↗</span></a>
+          <p class="events-source-note">Dates and venues can change. Check the organiser’s page before travelling. Saved events stay in this browser.</p>
+          <p class="events-data-credit">Event data credited to <a href="https://ip73.fr/" target="_blank" rel="noopener noreferrer">IP73</a>.</p>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="site-footer wrap"><a class="footer-brand" href="/en/">PSTB<span> Tech</span></a><span>Student association · PSTB</span><a href="/en/events/world/">Worldwide agenda <span aria-hidden="true">↗</span></a><span>© PSTB Tech</span></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

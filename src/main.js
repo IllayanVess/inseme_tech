@@ -8,6 +8,7 @@ import { initializeAssociationPage } from './features/association/association-pa
 import { initializeAdminAssociationsPage } from './features/account/admin-associations-page.js'
 import { initializeAdminUsersPage } from './features/account/admin-users-page.js'
 import { initializeAiWatchPage } from './features/watch/ai-watch-page.js'
+import { initializeEventsPage } from './features/events/events-page.js'
 
 initializeAboutPage()
 initializeActivitiesPage()
@@ -18,3 +19,4 @@ initializeAssociationPage()
 initializeAdminAssociationsPage()
 initializeAdminUsersPage()
 initializeAiWatchPage()
+initializeEventsPage()
