@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Suivez les nouvelles de l’intelligence artificielle depuis des sources sélectionnées et recevez des alertes sur vos mots-clés." />
+    <title>Veille technologique IA — PSTB Tech</title>
+  </head>
+  <body class="watch-page">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="PSTB Tech, accueil"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
+        <a class="nav-link" href="/">Accueil</a>
+        <a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a>
+        <a class="nav-link" href="/associations/">Associations</a>
+        <a class="nav-cta" href="/activites/">Activités <span aria-hidden="true">↗</span></a>
+        <a class="nav-link active" href="/veille/" aria-current="page">Veille IA</a>
+        <a class="nav-link" href="/compte/">Mon compte</a>
+        <div class="language-switch" aria-label="Choisir la langue"><a class="selected" href="/veille/" lang="fr" aria-current="page">FR</a><span aria-hidden="true">/</span><a href="/en/watch/" lang="en">EN</a></div>
+      </nav>
+    </header>
+
+    <main class="watch-main" data-watch-page>
+      <section class="watch-hero wrap">
+        <p class="eyebrow">VEILLE TECHNOLOGIQUE · INTELLIGENCE ARTIFICIELLE</p>
+        <h1>Suivre l’IA.<br /><em>Au bon moment.</em></h1>
+        <p class="watch-lede">Les dernières publications de sources spécialisées et de laboratoires d’IA, réunies dans un fil. Suivez vos mots-clés pour recevoir une notification quand ils apparaissent dans le titre ou l’extrait RSS d’un nouvel article.</p>
+        <div class="watch-hero-note"><span class="watch-live-dot" aria-hidden="true"></span><span data-watch-source-count>Chargement des sources…</span><span class="watch-update-frequency">Vérification des alertes toutes les 15 min</span></div>
+      </section>
+
+      <div class="watch-layout wrap">
+        <section class="watch-panel watch-feed-panel" aria-labelledby="watch-feed-title">
+          <div class="watch-panel-heading">
+            <div><p class="eyebrow">FIL DE VEILLE</p><h2 id="watch-feed-title">Actualités <em>IA</em></h2></div>
+            <button class="watch-refresh" type="button" data-watch-refresh><span aria-hidden="true">↻</span><span>Actualiser</span></button>
+          </div>
+          <div class="watch-feed-tools">
+            <label for="watch-source-filter">Source</label>
+            <select id="watch-source-filter" data-watch-source-filter>
+              <option value="all">Toutes les sources</option>
+            </select>
+            <span data-watch-result-count aria-live="polite"></span>
+          </div>
+          <p class="watch-feed-status" data-watch-feed-status role="status" aria-live="polite">Chargement des articles…</p>
+          <div class="watch-article-list" data-watch-articles></div>
+        </section>
+
+        <aside class="watch-panel watch-settings" aria-labelledby="watch-settings-title">
+          <p class="eyebrow">PERSONNALISER</p>
+          <h2 id="watch-settings-title">Vos <em>alertes</em></h2>
+          <p class="watch-settings-intro">Connectez-vous pour suivre des mots ou expressions. Vos termes et appareils restent privés à votre compte.</p>
+
+          <section class="watch-login" data-watch-login aria-labelledby="watch-login-title" hidden>
+            <h3 id="watch-login-title">Connexion membre</h3>
+            <p data-watch-auth-note></p>
+            <form class="watch-form" data-watch-signin-form>
+              <label for="watch-email">Adresse e-mail</label>
+              <input id="watch-email" name="email" type="email" autocomplete="email" required />
+              <label for="watch-password">Mot de passe</label>
+              <input id="watch-password" name="password" type="password" autocomplete="current-password" required />
+              <button class="button button-dark watch-primary-button" type="submit">Se connecter</button>
+            </form>
+            <a class="watch-account-link" href="/compte/">Gérer mon compte <span aria-hidden="true">↗</span></a>
+          </section>
+
+          <section data-watch-dashboard hidden aria-label="Paramètres de veille">
+            <p class="watch-signed-in">Connecté : <strong data-watch-user-email></strong></p>
+            <form class="watch-form watch-keyword-form" data-watch-keyword-form>
+              <label for="watch-keyword">Mot ou expression à suivre</label>
+              <div class="watch-keyword-input-row">
+                <input id="watch-keyword" name="keyword" type="text" minlength="2" maxlength="80" autocomplete="off" placeholder="ex. modèles ouverts" required />
+                <button class="button button-dark" type="submit" aria-label="Ajouter le mot-clé">+</button>
+              </div>
+              <p class="watch-form-hint" data-watch-keyword-count>Jusqu’à 20 mots-clés.</p>
+            </form>
+            <ul class="watch-keyword-list" data-watch-keywords aria-label="Mots-clés suivis"></ul>
+            <p class="watch-keyword-empty" data-watch-keyword-empty>Aucun mot-clé suivi pour le moment.</p>
+
+            <div class="watch-notification-settings">
+              <h3>Notifications sur cet appareil</h3>
+              <p data-watch-push-status role="status" aria-live="polite">Les notifications sont désactivées sur cet appareil.</p>
+              <button class="button button-outline watch-push-button" type="button" data-watch-enable-push>Activer les notifications</button>
+              <button class="watch-disable-push" type="button" data-watch-disable-push hidden>Désactiver sur cet appareil</button>
+            </div>
+          </section>
+
+          <p class="watch-account-status" data-watch-account-status role="status" aria-live="polite"></p>
+        </aside>
+      </div>
+
+      <section class="watch-sources wrap" aria-labelledby="watch-sources-title">
+        <div class="watch-sources-heading"><div><p class="eyebrow">SOURCES SUIVIES</p><h2 id="watch-sources-title">À la source <em>des signaux.</em></h2></div><p>Les flux RSS sont attribués à leurs éditeurs. Ouvrez un titre pour lire l’article sur son site d’origine.</p></div>
+        <ul class="watch-source-list" data-watch-sources></ul>
+      </section>
+    </main>
+
+    <footer class="site-footer wrap"><a class="footer-brand" href="/">PSTB<span> Tech</span></a><span>Association étudiante · PSTB</span><a href="/a-propos/">Qui sommes-nous ? <span aria-hidden="true">↗</span></a><span>© PSTB Tech</span></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

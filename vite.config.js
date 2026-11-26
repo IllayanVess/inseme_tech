@@ -24,6 +24,8 @@ export default {
         aboutEnglish: 'en/about/index.html',
         activities: 'activites/index.html',
         activitiesEnglish: 'en/activities/index.html',
+        watch: 'veille/index.html',
+        watchEnglish: 'en/watch/index.html',
         account: 'compte/index.html',
         accountEnglish: 'en/account/index.html',
         adminAssociations: 'compte/admin/associations/index.html',

@@ -86,7 +86,10 @@ Deno.serve(async (request: Request) => {
       Deno.env.get('SUPABASE_PUBLISHABLE_KEYS'),
       Deno.env.get('SUPABASE_ANON_KEY'),
     )
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const serviceKey = getDefaultKey(
+      Deno.env.get('SUPABASE_SECRET_KEYS'),
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
+    )
     if (!url || !publishableKey || !serviceKey) {
       return json({ error: 'Account administration is not configured.', code: 'admin_not_configured' }, 503)
     }

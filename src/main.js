@@ -7,6 +7,7 @@ import { initializeAccountPage } from './features/account/account-page.js'
 import { initializeAssociationPage } from './features/association/association-page.js'
 import { initializeAdminAssociationsPage } from './features/account/admin-associations-page.js'
 import { initializeAdminUsersPage } from './features/account/admin-users-page.js'
+import { initializeAiWatchPage } from './features/watch/ai-watch-page.js'
 
 initializeAboutPage()
 initializeActivitiesPage()
@@ -16,3 +17,4 @@ initializeAccountPage()
 initializeAssociationPage()
 initializeAdminAssociationsPage()
 initializeAdminUsersPage()
+initializeAiWatchPage()
