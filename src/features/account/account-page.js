@@ -16,7 +16,6 @@ import {
   refreshAccountSession,
   signIn,
   signOut,
-  updateAccountPassword,
 } from '../../services/account.js'
 
 const pageCopy = {
@@ -133,9 +132,6 @@ const pageCopy = {
       community: 'Vie étudiante',
     },
     eventStatuses: { planned: 'Prévu', open: 'Inscriptions ouvertes', full: 'Complet', cancelled: 'Annulé', completed: 'Terminé' },
-    passwordSaved: 'Mot de passe enregistré.',
-    passwordError: 'Impossible d’enregistrer le mot de passe. Utilisez au moins 10 caractères.',
-    passwordLabel: 'Définir ou modifier le mot de passe',
     accents: { indigo: 'Indigo', cyan: 'Cyan', violet: 'Violet', blue: 'Bleu' },
   },
   en: {
@@ -251,9 +247,6 @@ const pageCopy = {
       community: 'Community',
     },
     eventStatuses: { planned: 'Planned', open: 'Registration open', full: 'Full', cancelled: 'Cancelled', completed: 'Completed' },
-    passwordSaved: 'Password saved.',
-    passwordError: 'Could not save the password. Use at least 10 characters.',
-    passwordLabel: 'Set or change password',
     accents: { indigo: 'Indigo', cyan: 'Cyan', violet: 'Violet', blue: 'Blue' },
   },
 }
@@ -268,7 +261,6 @@ export function initializeAccountPage() {
   const profile = root.querySelector('[data-account-profile]')
   const workspaceList = root.querySelector('[data-workspace-list]')
   const memberProfiles = root.querySelector('[data-member-profiles]')
-  const passwordForm = root.querySelector('[data-password-form]')
   const associationEditors = root.querySelector('[data-association-editors]')
   const adminLinks = root.querySelector('[data-admin-links]')
   const bootstrapArea = root.querySelector('[data-bootstrap-area]')
@@ -517,23 +509,6 @@ export function initializeAccountPage() {
     } finally {
       submit.disabled = false
     }
-  })
-
-  passwordForm.addEventListener('submit', async (event) => {
-    event.preventDefault()
-    const values = new FormData(passwordForm)
-    const password = values.get('password')
-    const submit = passwordForm.querySelector('[type="submit"]')
-    submit.disabled = true
-    setStatus(copy.loading)
-    const { error } = await updateAccountPassword(password)
-    submit.disabled = false
-    if (error) {
-      setStatus(copy.passwordError)
-      return
-    }
-    passwordForm.reset()
-    setStatus(copy.passwordSaved)
   })
 
   onAccountChange(async (_event, session) => {

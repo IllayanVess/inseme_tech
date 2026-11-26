@@ -484,7 +484,6 @@ h1 em, h2 em { color: transparent; background: linear-gradient(105deg, var(--acc
 .account-workspaces[data-association-editors] { display: grid; gap: 12px; }
 .account-workspaces[data-member-profiles] { display: grid; gap: 12px; }
 .account-workspaces[data-member-profiles] h3 { margin: 0; }
-.account-password-form { max-width: 560px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #303651; }
 .member-profile-consent { display: flex !important; align-items: flex-start; gap: 10px; }
 .member-profile-consent input { flex: 0 0 auto; width: 20px; min-height: 20px; margin: 2px 0 0; accent-color: #77e8f4; }
 .association-member-invite { margin-top: 22px; padding-top: 18px; border-top: 1px solid #303651; }
