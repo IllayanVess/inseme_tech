@@ -304,8 +304,8 @@ export function initializeEventsPage() {
     today.setHours(0, 0, 0, 0)
 
     const filtered = events.filter((event) => {
-      const end = localDate(event.end || event.start)
-      if (end < today) return false
+      const start = localDate(event.start)
+      if (start < today) return false
       if (currentView === 'saved' && !savedIds.has(event.id)) return false
       if (selectedCategory !== 'all' && event.category !== selectedCategory) return false
       if (selectedMonth !== 'all' && event.start.slice(0, 7) !== selectedMonth) return false

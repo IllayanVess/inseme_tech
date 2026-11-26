@@ -168,7 +168,7 @@ export default async function techEvents(request) {
     const allEvents = parseCalendar(calendarText)
     const filteredEvents = scope === 'paris' ? allEvents.filter(isParisEvent) : allEvents
     const events = filteredEvents
-      .filter((event) => event.end >= new Date().toISOString().slice(0, 10))
+      .filter((event) => event.start >= new Date().toISOString().slice(0, 10))
       .sort((left, right) => left.start.localeCompare(right.start) || left.title.localeCompare(right.title))
       .slice(0, maxReturnedEvents)
 
