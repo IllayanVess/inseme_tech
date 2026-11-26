@@ -116,6 +116,8 @@ export function initializeAdminAssociationsPage() {
           admin_create_function_missing: text.setup,
           admin_not_configured: text.config,
           admin_required: text.adminLost,
+          auth_session_missing: text.adminLost,
+          UNAUTHORIZED_NO_AUTH_HEADER: text.adminLost,
         }
         setStatus(messages[data?.code] || text.createError)
         return

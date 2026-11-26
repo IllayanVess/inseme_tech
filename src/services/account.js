@@ -21,8 +21,17 @@ export async function refreshAccountSession() {
 }
 
 export async function callAccountAdministration(action, values = {}) {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError || !session?.access_token) {
+    return {
+      data: { code: 'auth_session_missing' },
+      error: sessionError ?? new Error('Sign in is required for account administration.'),
+    }
+  }
+
   const result = await supabase.functions.invoke('manage-users', {
     body: { action, ...values },
+    headers: { Authorization: `Bearer ${session.access_token}` },
   })
   if (!result.error) return result
 
