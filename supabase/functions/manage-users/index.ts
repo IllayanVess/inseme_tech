@@ -12,6 +12,21 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
   headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' },
 })
 
+function normalizeEmail(value: string | null | undefined) {
+  return value?.trim().toLowerCase() ?? ''
+}
+
+function safeErrorMetadata(error: unknown) {
+  if (!error || typeof error !== 'object') return { name: 'UnknownError' }
+
+  const details = error as { name?: unknown; code?: unknown; status?: unknown }
+  return {
+    name: typeof details.name === 'string' ? details.name : 'UnknownError',
+    ...(typeof details.code === 'string' ? { code: details.code } : {}),
+    ...(typeof details.status === 'number' ? { status: details.status } : {}),
+  }
+}
+
 function getDefaultKey(value: string | undefined, legacyValue: string | undefined) {
   if (value) {
     try {
@@ -48,7 +63,10 @@ async function findUserByEmail(admin: ReturnType<typeof createClient>, email: st
   const expectedEmail = normalizeEmail(email)
   for (let page = 1; page <= 100; page += 1) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
-    if (error) throw new Error('Could not verify the selected account.')
+    if (error) {
+      console.error('manage-users president account lookup failed:', safeErrorMetadata(error))
+      throw new Error('Could not verify the selected account.')
+    }
     const match = data.users.find((user) => normalizeEmail(user.email) === expectedEmail)
     if (match) return match
     if (data.users.length < 1000) return null
@@ -76,6 +94,7 @@ Deno.serve(async (request: Request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405)
 
+  let operation = 'authenticate_request'
   try {
     const authorization = request.headers.get('Authorization')
     const token = authorization?.match(/^Bearer\s+(.+)$/i)?.[1]
@@ -101,6 +120,7 @@ Deno.serve(async (request: Request) => {
     if (authError || !verified.user) return json({ error: 'Your session is no longer valid.' }, 401)
     const caller = verified.user
 
+    operation = 'parse_request'
     const rawBody = await request.text()
     if (rawBody.length > 16384) return json({ error: 'Request is too large.' }, 413)
     const body = JSON.parse(rawBody) as {
@@ -257,6 +277,7 @@ Deno.serve(async (request: Request) => {
         return json({ error: 'Enter the email of a confirmed account.', code: 'president_account_unconfirmed' }, 400)
       }
 
+      operation = 'lookup_president_account'
       const president = await findUserByEmail(admin, presidentEmail)
       if (!president || !president.email_confirmed_at) {
         return json({ error: 'No confirmed account matches that email.', code: 'president_account_unconfirmed' }, 404)
@@ -279,6 +300,7 @@ Deno.serve(async (request: Request) => {
           return json({ error: 'Check the association details and both language versions.', code: 'invalid_association_fields' }, 400)
         }
 
+        operation = 'create_association_rpc'
         const { data, error } = await admin.rpc('admin_create_association', {
           p_slug: slug,
           p_name: name,
@@ -297,6 +319,7 @@ Deno.serve(async (request: Request) => {
           return json({ error: 'Association administration is not installed in the database.', code: 'admin_create_function_missing' }, 503)
         }
         if (error) {
+          console.error('manage-users association RPC failed:', safeErrorMetadata(error))
           return json({ error: 'Could not create the association.', code: 'association_create_failed' }, 500)
         }
         return json({ ok: true, associationId: data })
@@ -381,7 +404,8 @@ Deno.serve(async (request: Request) => {
     }
 
     return json({ error: 'Unknown action.' }, 400)
-  } catch {
+  } catch (error) {
+    console.error('manage-users request failed:', { operation, ...safeErrorMetadata(error) })
     return json({ error: 'Could not complete the account request.' }, 500)
   }
 })
