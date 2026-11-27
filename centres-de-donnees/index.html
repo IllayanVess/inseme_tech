@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070913" />
+    <meta name="description" content="Carte européenne des centres de données en exploitation, en construction et projetés, avec les puissances publiées et leurs sources." />
+    <link rel="alternate" hreflang="en" href="/en/data-centers/" />
+    <title>Centres de données en Europe — PSTB Tech</title>
+  </head>
+  <body class="watch-page data-centers-page">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="PSTB Tech, accueil"><span class="wordmark-symbol" aria-hidden="true">P<span>.</span></span><span class="wordmark-name">PSTB<span> Tech</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
+        <a class="nav-link" href="/">Accueil</a>
+        <a class="nav-link" href="/a-propos/">Qui sommes-nous ?</a>
+        <a class="nav-link" href="/associations/">Associations</a>
+        <a class="nav-cta" href="/activites/">Activités <span aria-hidden="true">↗</span></a>
+        <a class="nav-link" href="/veille/">Veille IA</a>
+        <a class="nav-link" href="/evenements/">Agenda tech</a>
+        <a class="nav-link active" href="/centres-de-donnees/" aria-current="page">Centres de données</a>
+        <a class="nav-link" href="/compte/">Mon compte</a>
+        <div class="language-switch" aria-label="Choisir la langue"><a class="selected" href="/centres-de-donnees/" lang="fr" aria-current="page">FR</a><span aria-hidden="true">/</span><a href="/en/data-centers/" lang="en">EN</a></div>
+      </nav>
+    </header>
+
+    <main class="data-centers-main" data-data-centers-page>
+      <section class="data-centers-hero wrap">
+        <p class="eyebrow">INFRASTRUCTURE NUMÉRIQUE · EUROPE</p>
+        <h1>Les centres de données.<br /><em>En Europe.</em></h1>
+        <p class="watch-lede">Repérez les sites en exploitation, en construction et projetés. Survolez un repère pour consulter les statuts et les puissances publiées.</p>
+        <div class="dc-freshness"><span class="dc-live-indicator" aria-hidden="true"></span><span>Source vérifiée automatiquement toutes les 15 minutes</span><span data-dc-published>Date de publication en attente</span></div>
+      </section>
+
+      <section class="data-centers-explorer wrap" aria-label="Carte et liste des centres de données">
+        <div class="dc-map-panel">
+          <div class="dc-panel-heading">
+            <div>
+              <p class="eyebrow">CARTE INTERACTIVE</p>
+              <p class="dc-result-count" data-dc-result-count aria-live="polite">Chargement des sites…</p>
+            </div>
+            <button class="dc-refresh-button" type="button" data-dc-refresh>Actualiser les données</button>
+          </div>
+          <div class="dc-legend" aria-label="Légende de la carte">
+            <span><i class="dc-map-pin dc-map-pin-operational" aria-hidden="true"></i>En exploitation</span>
+            <span><i class="dc-map-pin dc-map-pin-construction" aria-hidden="true"></i>En construction</span>
+            <span><i class="dc-map-pin dc-map-pin-planned" aria-hidden="true"></i>Projeté</span>
+            <span><i class="dc-map-pin dc-map-pin-completed" aria-hidden="true"></i>Terminé · exploitation à confirmer</span>
+          </div>
+          <div class="dc-map" data-dc-map role="region" aria-label="Carte interactive des centres de données en Europe"></div>
+          <p class="dc-map-attribution">Tuiles de carte © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> · <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noreferrer">Signaler une erreur de carte</a></p>
+        </div>
+
+        <aside class="dc-sidebar" aria-label="Recherche et détails des sites">
+          <form class="dc-filters">
+            <label class="dc-filter-control"><span>Rechercher un site</span><input data-dc-search type="search" placeholder="Nom ou pays" autocomplete="off" /></label>
+            <label class="dc-filter-control"><span>Statut du site</span><select data-dc-status-filter><option value="">Tous les statuts</option><option value="operational">En exploitation</option><option value="construction">En construction</option><option value="planned">Projeté</option><option value="completed">Terminé</option></select></label>
+            <label class="dc-filter-control"><span>Pays</span><select data-dc-country><option value="">Tous les pays</option></select></label>
+          </form>
+          <p class="dc-feed-status" data-dc-feed-status role="status" aria-live="polite">Chargement des dernières données publiées…</p>
+          <section class="dc-detail-panel" data-dc-detail aria-live="polite" aria-atomic="true"></section>
+          <section class="dc-site-results" aria-label="Sites correspondant aux filtres">
+            <h2 class="dc-results-heading">Sites repérés</h2>
+            <ul class="dc-site-list" data-dc-list></ul>
+          </section>
+        </aside>
+      </section>
+
+      <section class="dc-source-notes wrap" aria-label="Sources et limites des données">
+        <p><strong>Source des projets :</strong> Data Center Atlas, Kian Kyars (2026), <a href="https://kiankyars.github.io/datacenter-atlas/api/" target="_blank" rel="noreferrer">API publique</a>. Données de l’Atlas sous <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>, adaptées ici par filtrage sur l’Europe et traduction de l’interface. Les géométries OSM suivent l’ODbL ; les autres faits gardent les licences de leurs sources.</p>
+        <p>Les statuts sont les dernières observations datées disponibles, pas un suivi opérationnel en temps réel. La couverture varie selon les pays et certains repères indiquent une ville ou une région plutôt que l’emplacement exact du centre. Les puissances projetées ou de conception restent distinctes des capacités installées ; les valeurs absentes sont inconnues, pas nulles.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer wrap"><a class="footer-brand" href="/">PSTB<span> Tech</span></a><span>Technologie et innovation à PSTB</span><a href="/en/data-centers/" lang="en">Data centers in Europe ↗</a></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

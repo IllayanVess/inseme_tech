@@ -54,7 +54,7 @@ The current migrations are incremental from the existing hosted schema; they are
 
 ## AI technology watch
 
-- The bilingual watch pages are `/veille/` and `/en/watch/`. The public feed reads RSS from OpenAI News, Google DeepMind, MIT Technology Review AI, TechCrunch AI, Hugging Face, and Le Monde's AI section. Headlines and short feed excerpts link back to their publishers.
+- The bilingual watch pages are `/veille/` and `/en/watch/`. The public feed reads RSS from OpenAI News, Google DeepMind, WIRED AI, MIT Technology Review AI, TechCrunch AI, Hugging Face, and Le Monde's AI section. Headlines and short feed excerpts link back to their publishers.
 - Signed-in members can save up to 20 private keywords. Supabase RLS scopes keywords and browser push subscriptions to their owner; delivery receipts are server-only.
 - `netlify/functions/ai-watch-notifications.mjs` checks feeds every 15 minutes on published Netlify deploys. Push notifications require HTTPS, browser permission, and server-side VAPID keys.
 - Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for the site build. In Netlify's server environment, set `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `WEB_PUSH_PUBLIC_KEY`, `WEB_PUSH_PRIVATE_KEY`, and `WEB_PUSH_SUBJECT`. `SUPABASE_SERVICE_ROLE_KEY` is supported only as a legacy fallback. Never prefix server credentials with `VITE_`.
@@ -70,6 +70,12 @@ The current migrations are incremental from the existing hosted schema; they are
 - The browser refreshes visible pages every 15 minutes and refreshes when a previously idle tab becomes active. Netlify caches successful feed responses briefly; IP73 says its source calendar is updated daily. The displayed check time is when the Netlify endpoint fetched the feed.
 - Verify the event's organizer page before travel because venue and date details can change. Event listings link to their event page when provided and credit [IP73](https://ip73.fr/evenements/).
 - Saved events are stored in the current browser only. No event data or user tracking records are written to Supabase.
+
+## European data-centre map
+
+- The bilingual map pages are `/centres-de-donnees/` and `/en/data-centers/`. They read the public Data Center Atlas JSON API directly and refresh the source check every 15 minutes.
+- Sites are grouped as operating, under construction, planned, or completed with operation unconfirmed. Hover or focus a map marker for the latest dated status and published power observations; use the site list and filters as an accessible alternative.
+- Planned and design power values are labeled as projections, and missing values stay unknown. Atlas statuses are dated reports rather than real-time telemetry; the Atlas documents incomplete coverage and approximate location anchors. See the page for data attribution and map credits.
 
 ## Licensing
 

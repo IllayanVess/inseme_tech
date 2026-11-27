@@ -30,6 +30,8 @@ export default {
         eventsParisEnglish: 'en/events/index.html',
         eventsWorld: 'evenements/monde/index.html',
         eventsWorldEnglish: 'en/events/world/index.html',
+        dataCenters: 'centres-de-donnees/index.html',
+        dataCentersEnglish: 'en/data-centers/index.html',
         account: 'compte/index.html',
         accountEnglish: 'en/account/index.html',
         adminAssociations: 'compte/admin/associations/index.html',

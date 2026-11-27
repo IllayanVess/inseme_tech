@@ -20,3 +20,9 @@ initializeAdminAssociationsPage()
 initializeAdminUsersPage()
 initializeAiWatchPage()
 initializeEventsPage()
+
+if (document.querySelector('[data-data-centers-page]')) {
+  import('./features/data-centers/data-centers-page.js')
+    .then(({ initializeDataCentersPage }) => initializeDataCentersPage())
+    .catch((error) => console.error('Could not initialize the data-centre map:', error))
+}

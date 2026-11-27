@@ -12,6 +12,12 @@ const sourceList = [
     feedUrl: 'https://deepmind.google/blog/rss.xml',
   },
   {
+    id: 'wired-ai',
+    name: 'WIRED · Artificial Intelligence',
+    url: 'https://www.wired.com/category/artificial-intelligence/',
+    feedUrl: 'https://www.wired.com/feed/tag/ai/latest/rss',
+  },
+  {
     id: 'mit-tech-review',
     name: 'MIT Technology Review · AI',
     url: 'https://www.technologyreview.com/topic/artificial-intelligence/',
