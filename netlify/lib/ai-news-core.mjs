@@ -145,7 +145,7 @@ async function readSource(source) {
   const response = await fetch(source.feedUrl, {
     headers: {
       Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.8',
-      'User-Agent': 'PSTB-Tech-AI-Watch/1.0',
+      'User-Agent': 'Inseme-Tech-AI-Watch/1.0',
     },
     signal: AbortSignal.timeout(7000),
   })

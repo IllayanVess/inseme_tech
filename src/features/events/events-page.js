@@ -150,7 +150,7 @@ function createCalendarFile(event) {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//PSTB Tech//Event Tracker//EN',
+    'PRODID:-//INSEME TECH//Event Tracker//EN',
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     `UID:${event.id}@pstb-tech`,

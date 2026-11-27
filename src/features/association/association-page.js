@@ -138,7 +138,7 @@ const renderAssociation = (page, data) => {
     return
   }
 
-  document.title = `${association.name} — PSTB Tech`
+  document.title = `${association.name} — INSEME TECH`
   const description = localized(association, 'introduction') || association.name
   document.querySelector('meta[name="description"]')?.setAttribute('content', description)
   const accent = ['indigo', 'cyan', 'violet', 'blue'].includes(association.theme_accent)
@@ -266,7 +266,7 @@ function renderDirectory(page, associations) {
   const status = page.querySelector('[data-association-status]')
   const directory = page.querySelector('[data-association-directory]')
   const list = page.querySelector('[data-association-directory-list]')
-  document.title = `${copy.directoryTitle} — PSTB Tech`
+  document.title = `${copy.directoryTitle} — INSEME TECH`
   document.querySelector('meta[name="description"]')?.setAttribute('content', copy.directoryDescription)
   status.hidden = true
   directory.hidden = false
@@ -349,7 +349,7 @@ export function initializeAssociationPage() {
       const bio = localized(result.member, 'bio')
       section.querySelector('[data-member-name]').textContent = name
       const description = bio || name
-      document.title = `${name} — ${result.association.name} — PSTB Tech`
+      document.title = `${name} — ${result.association.name} — INSEME TECH`
       document.querySelector('meta[name="description"]')?.setAttribute('content', description)
       if (bio) appendText(section.querySelector('[data-member-bio]'), 'p', '', bio)
     })
@@ -361,7 +361,7 @@ export function initializeAssociationPage() {
         page.querySelector('[data-association-overview]').hidden = true
         const section = page.querySelector('[data-member-directory-section]')
         section.hidden = false
-        document.title = `${copy.members} — ${result.association.name} — PSTB Tech`
+        document.title = `${copy.members} — ${result.association.name} — INSEME TECH`
         document.querySelector('meta[name="description"]')?.setAttribute('content', `${copy.members} — ${result.association.name}`)
 
         const list = page.querySelector('[data-member-list]')
